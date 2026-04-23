@@ -10,296 +10,149 @@
 <meta name="description" content="Live Øresundståg departures — Hyllie ↔ CPH Airport">
 <title>Øresundståg — Hyllie ↔ CPH</title>
 <link rel="manifest" href="manifest.json">
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --blue: #003F87;
-    --blue-light: #EDF4FC;
-    --blue-mid: #185FA5;
-    --red: #D32B2E;
-    --red-light: #FCEBEB;
-    --green: #1D9E75;
-    --green-light: #E1F5EE;
-    --amber: #854F0B;
-    --amber-light: #FAEEDA;
-    --gray-50: #F7F8FA;
-    --gray-100: #EAECF0;
-    --gray-300: #C0C4CD;
-    --gray-500: #6B7280;
-    --gray-700: #374151;
-    --gray-900: #111827;
-    --white: #ffffff;
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --font: 'DM Sans', sans-serif;
-    --font-mono: 'DM Mono', monospace;
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-  }
+:root {
+  --blue:#003F87; --blue-light:#EDF4FC;
+  --red:#D32B2E; --red-light:#FCEBEB;
+  --green:#1D9E75; --green-light:#E1F5EE;
+  --amber:#854F0B; --amber-light:#FAEEDA;
+  --gray-50:#F7F8FA; --gray-100:#EAECF0; --gray-300:#C0C4CD;
+  --gray-500:#6B7280; --gray-900:#111827; --white:#fff;
+  --r-sm:8px; --r-md:12px; --r-lg:16px;
+  --font:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);min-height:100dvh;padding-bottom:calc(1.5rem + var(--safe-bottom));-webkit-font-smoothing:antialiased}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+.header{background:var(--blue);padding:calc(1rem + var(--safe-top)) 1rem 1rem;position:sticky;top:0;z-index:10}
+.header-inner{display:flex;align-items:center;justify-content:space-between;max-width:480px;margin:0 auto}
+.header-left{display:flex;align-items:center;gap:10px}
+.train-icon{width:38px;height:38px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.train-icon svg{width:20px;height:20px;fill:white}
+.header-title{font-size:17px;font-weight:500;color:white}
+.header-sub{font-size:11px;color:rgba(255,255,255,.65);margin-top:1px}
+.live-badge{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border-radius:20px;padding:5px 10px;font-size:11px;font-weight:500;color:white}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#9ca3af;flex-shrink:0}
+.live-dot.on{background:#4ade80;animation:pulse 1.5s infinite}
+.live-dot.err{background:#f87171}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-  body {
-    font-family: var(--font);
-    background: var(--gray-50);
-    color: var(--gray-900);
-    min-height: 100dvh;
-    padding-bottom: calc(1rem + var(--safe-bottom));
-    -webkit-font-smoothing: antialiased;
-  }
+.main{max-width:480px;margin:0 auto;padding:1rem;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--white);border-radius:var(--r-md);border:1px solid var(--gray-100);padding:14px 16px}
 
-  .header {
-    background: var(--blue);
-    padding: calc(1rem + var(--safe-top)) 1rem 1rem;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .header-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-  .header-left { display: flex; align-items: center; gap: 10px; }
-  .train-icon {
-    width: 38px; height: 38px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .train-icon svg { width: 20px; height: 20px; fill: white; }
-  .header-title { font-size: 17px; font-weight: 500; color: white; }
-  .header-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px; }
-  .live-badge {
-    display: flex; align-items: center; gap: 5px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 20px;
-    padding: 5px 10px;
-    font-size: 11px;
-    font-weight: 500;
-    color: white;
-  }
-  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #9ca3af; flex-shrink: 0; }
-  .live-dot.on { background: #4ade80; animation: pulse 1.5s infinite; }
-  .live-dot.err { background: #f87171; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.dir-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dir-btn{padding:12px 14px;border-radius:var(--r-md);border:1.5px solid var(--gray-100);background:var(--white);cursor:pointer;font-family:var(--font);text-align:left;transition:all .15s;-webkit-appearance:none}
+.dir-btn.active{border-color:var(--blue);background:var(--blue-light)}
+.dir-btn-main{font-size:13px;font-weight:500;color:var(--gray-500)}
+.dir-btn.active .dir-btn-main{color:var(--blue)}
+.dir-btn-sub{font-size:11px;color:var(--gray-300);margin-top:2px}
 
-  .main {
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+.catch-title{font-size:12px;font-weight:500;color:var(--gray-500);display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.catch-title svg{width:14px;height:14px;fill:var(--blue)}
+.catch-row{display:flex;align-items:center;gap:10px}
+.catch-label{font-size:13px;color:var(--gray-500);white-space:nowrap}
+.catch-slider{flex:1;accent-color:var(--blue)}
+.catch-val{font-size:14px;font-weight:500;color:var(--gray-900);min-width:52px;text-align:right;font-family:var(--mono)}
+.catch-result{margin-top:10px;padding:10px 12px;border-radius:var(--r-sm);font-size:13px;line-height:1.5;font-weight:500}
+.catch-result.green{background:var(--green-light);color:#085041}
+.catch-result.amber{background:var(--amber-light);color:var(--amber)}
+.catch-result.red{background:var(--red-light);color:#791F1F}
 
-  .dir-toggle {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .dir-btn {
-    padding: 12px 14px;
-    border-radius: var(--radius-md);
-    border: 1.5px solid var(--gray-100);
-    background: var(--white);
-    cursor: pointer;
-    font-family: var(--font);
-    text-align: left;
-    transition: all .15s;
-    -webkit-appearance: none;
-  }
-  .dir-btn.active {
-    border-color: var(--blue);
-    background: var(--blue-light);
-  }
-  .dir-btn-main {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--gray-500);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .dir-btn.active .dir-btn-main { color: var(--blue); }
-  .dir-btn-sub { font-size: 11px; color: var(--gray-300); margin-top: 2px; }
+.alert-banner{border-radius:var(--r-sm);padding:10px 14px;font-size:13px;line-height:1.5;display:none;gap:10px;align-items:flex-start}
+.alert-banner.show{display:flex}
+.alert-banner.cancelled{background:var(--red-light);color:#791F1F;border:1px solid #F09595}
+.alert-banner.warning{background:var(--amber-light);color:var(--amber);border:1px solid #EF9F27}
+.border-note{background:var(--amber-light);border-radius:var(--r-sm);padding:10px 12px;font-size:12px;color:var(--amber);display:none;gap:8px;align-items:flex-start;line-height:1.5}
+.border-note.show{display:flex}
+.border-note svg{width:14px;height:14px;fill:var(--amber);flex-shrink:0;margin-top:1px}
 
-  .card {
-    background: var(--white);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--gray-100);
-    padding: 14px 16px;
-  }
+.section-label{font-size:11px;font-weight:500;color:var(--gray-300);letter-spacing:.05em;text-transform:uppercase;margin-bottom:-4px}
 
-  .catch-title {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--gray-500);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 12px;
-  }
-  .catch-title svg { width: 14px; height: 14px; fill: var(--blue); }
-  .catch-row { display: flex; align-items: center; gap: 10px; }
-  .catch-label { font-size: 13px; color: var(--gray-500); white-space: nowrap; }
-  .catch-slider { flex: 1; accent-color: var(--blue); }
-  .catch-val { font-size: 14px; font-weight: 500; color: var(--gray-900); min-width: 52px; text-align: right; font-family: var(--font-mono); }
-  .catch-result {
-    margin-top: 10px;
-    padding: 10px 12px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    line-height: 1.5;
-    font-weight: 500;
-  }
-  .catch-result.green { background: var(--green-light); color: #085041; }
-  .catch-result.amber { background: var(--amber-light); color: var(--amber); }
-  .catch-result.red { background: var(--red-light); color: #791F1F; }
+.dep-list{display:flex;flex-direction:column;gap:8px}
 
-  .alert-banner {
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    font-size: 13px;
-    line-height: 1.5;
-    display: none;
-    gap: 10px;
-    align-items: flex-start;
-  }
-  .alert-banner.show { display: flex; }
-  .alert-banner.cancelled { background: var(--red-light); color: #791F1F; border: 1px solid #F09595; }
-  .alert-banner.warning { background: var(--amber-light); color: var(--amber); border: 1px solid #EF9F27; }
-  .alert-icon { font-size: 15px; flex-shrink: 0; }
+/* card wrapper — handles all border states */
+.dep-wrap{background:var(--white);border-radius:var(--r-md);border:1px solid var(--gray-100);overflow:hidden;transition:border-color .15s}
+.dep-wrap.is-next{border:2px solid var(--blue)}
+.dep-wrap.is-delayed{border-left:3px solid var(--red);border-radius:0 var(--r-md) var(--r-md) 0}
+.dep-wrap.is-cancelled{opacity:.6;background:var(--red-light);border-left:3px solid var(--red);border-radius:0 var(--r-md) var(--r-md) 0}
+.dep-wrap.catchable{border-color:var(--green)}
+.dep-wrap.expanded{border-color:var(--blue)}
 
-  .border-note {
-    background: var(--amber-light);
-    border-radius: var(--radius-sm);
-    padding: 10px 12px;
-    font-size: 12px;
-    color: var(--amber);
-    display: none;
-    gap: 8px;
-    align-items: flex-start;
-    line-height: 1.5;
-  }
-  .border-note.show { display: flex; }
-  .border-note svg { width: 14px; height: 14px; fill: var(--amber); flex-shrink: 0; margin-top: 1px; }
+.dep-card{padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.dep-chevron{margin-left:4px;flex-shrink:0;transition:transform .25s}
+.dep-chevron svg{width:16px;height:16px;display:block}
+.dep-wrap.expanded .dep-chevron{transform:rotate(180deg)}
 
-  .section-label {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--gray-300);
-    letter-spacing: .05em;
-    text-transform: uppercase;
-    margin-bottom: -4px;
-  }
+.line-badge{width:36px;height:36px;border-radius:9px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:white;flex-shrink:0;font-family:var(--mono)}
+.line-badge.red{background:var(--red)}
+.dep-mid{flex:1;min-width:0}
+.dep-name{font-size:13px;font-weight:500;color:var(--gray-900);display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px}
+.dep-dir{font-size:12px;color:var(--gray-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{font-size:10px;padding:2px 6px;border-radius:5px;font-weight:500}
+.tag-next{background:var(--blue);color:white}
+.tag-catch{background:var(--green);color:white}
+.tag-delay{background:var(--red-light);color:#A32D2D}
+.tag-cancel{background:var(--red);color:white}
+.dep-right{text-align:right;flex-shrink:0}
+.dep-planned{font-size:20px;font-weight:500;color:var(--gray-900);line-height:1;font-family:var(--mono)}
+.dep-planned.struck{text-decoration:line-through;color:var(--gray-300);font-size:14px}
+.dep-actual{font-size:15px;font-weight:500;color:var(--red);font-family:var(--mono);margin-top:1px}
+.dep-ontime{font-size:11px;color:var(--green);margin-top:2px}
+.dep-countdown{font-size:11px;color:var(--gray-500);margin-top:2px}
+.dep-countdown.soon{color:var(--red);font-weight:500}
+.dep-countdown.boarding{color:var(--green);font-weight:500}
+.dep-track{font-size:10px;color:var(--gray-300);margin-top:3px;font-family:var(--mono)}
 
-  .dep-list { display: flex; flex-direction: column; gap: 8px; }
+/* JOURNEY PANEL */
+.journey-panel{display:none;border-top:1px solid var(--gray-100);padding:14px 14px 18px}
+.dep-wrap.expanded .journey-panel{display:block}
+.journey-loading{font-size:12px;color:var(--gray-300);text-align:center;padding:1rem 0}
+.journey-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.journey-title{font-size:11px;font-weight:500;color:var(--gray-500);text-transform:uppercase;letter-spacing:.04em}
+.journey-name{font-size:12px;font-weight:500;color:var(--blue)}
 
-  .dep-card {
-    background: var(--white);
-    border: 1px solid var(--gray-100);
-    border-radius: var(--radius-md);
-    padding: 13px 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: border-color .15s;
-  }
-  .dep-card.is-next { border: 2px solid var(--blue); }
-  .dep-card.is-delayed { border-left: 3px solid var(--red); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
-  .dep-card.is-cancelled { opacity: .6; background: var(--red-light); border-left: 3px solid var(--red); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
-  .dep-card.catchable { border-color: var(--green); }
+/* STOP ROWS — Skånetrafiken style */
+.stop-list{display:flex;flex-direction:column}
+.stop-row{display:flex;align-items:stretch;min-height:48px}
+.stop-line-col{width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center}
+.stop-spacer{flex:1}
+.stop-line{width:2px;flex:1;background:var(--gray-100)}
+.stop-line.passed{background:var(--gray-300)}
+.stop-dot-wrap{width:30px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1}
+.stop-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--gray-300);background:var(--white)}
+.stop-dot.passed{background:var(--gray-300);border-color:var(--gray-300)}
+.stop-dot.current{background:var(--blue);border-color:var(--blue);width:14px;height:14px;box-shadow:0 0 0 4px rgba(0,63,135,.15)}
+.stop-dot.origin{background:var(--blue);border-color:var(--blue)}
+.stop-dot.dest{background:var(--red);border-color:var(--red)}
+.stop-content{flex:1;padding:2px 0 2px 10px;display:flex;align-items:flex-start;justify-content:space-between;min-height:48px}
+.stop-name{font-size:13px;color:var(--gray-500);padding-top:3px;line-height:1.3}
+.stop-name.bold{font-weight:500;color:var(--gray-900)}
+.stop-name.cur{font-weight:500;color:var(--blue)}
+.stop-platform{font-size:10px;color:var(--gray-300);margin-top:2px;font-family:var(--mono)}
+.stop-times{text-align:right;padding-top:3px;flex-shrink:0;min-width:52px}
+.s-planned{font-size:13px;font-family:var(--mono);color:var(--gray-500)}
+.s-planned.bold{color:var(--gray-900);font-weight:500}
+.s-planned.struck{text-decoration:line-through;color:var(--gray-300);font-size:11px}
+.s-actual{font-size:13px;font-family:var(--mono);font-weight:500;color:var(--red)}
+.s-cur{font-size:10px;color:var(--blue);font-weight:500;margin-top:1px}
 
-  .line-badge {
-    width: 36px; height: 36px;
-    border-radius: 9px;
-    background: var(--blue);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px;
-    font-weight: 500;
-    color: white;
-    flex-shrink: 0;
-    font-family: var(--font-mono);
-  }
-  .line-badge.red { background: var(--red); }
-
-  .dep-mid { flex: 1; min-width: 0; }
-  .dep-name { font-size: 13px; font-weight: 500; color: var(--gray-900); display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 3px; }
-  .dep-dir { font-size: 12px; color: var(--gray-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .tag { font-size: 10px; padding: 2px 6px; border-radius: 5px; font-weight: 500; }
-  .tag-next { background: var(--blue); color: white; }
-  .tag-catch { background: var(--green); color: white; }
-  .tag-delay { background: var(--red-light); color: #A32D2D; }
-  .tag-cancel { background: var(--red); color: white; }
-
-  .dep-right { text-align: right; flex-shrink: 0; }
-  .dep-planned { font-size: 20px; font-weight: 500; color: var(--gray-900); line-height: 1; font-family: var(--font-mono); }
-  .dep-planned.struck { text-decoration: line-through; color: var(--gray-300); font-size: 14px; }
-  .dep-actual { font-size: 15px; font-weight: 500; color: var(--red); font-family: var(--font-mono); margin-top: 1px; }
-  .dep-ontime { font-size: 11px; color: var(--green); margin-top: 2px; }
-  .dep-countdown { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
-  .dep-countdown.soon { color: var(--red); font-weight: 500; }
-  .dep-countdown.boarding { color: var(--green); font-weight: 500; }
-  .dep-track { font-size: 10px; color: var(--gray-300); margin-top: 3px; font-family: var(--font-mono); }
-
-  .api-section { display: flex; flex-direction: column; gap: 8px; }
-  .api-row { display: flex; gap: 8px; }
-  .api-input {
-    flex: 1;
-    font-size: 13px;
-    padding: 10px 12px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--gray-100);
-    background: var(--gray-50);
-    color: var(--gray-900);
-    font-family: var(--font);
-    outline: none;
-  }
-  .api-input:focus { border-color: var(--blue); background: var(--white); }
-  .api-btn {
-    font-size: 13px;
-    padding: 10px 16px;
-    border-radius: var(--radius-sm);
-    border: none;
-    background: var(--blue);
-    color: white;
-    cursor: pointer;
-    font-family: var(--font);
-    font-weight: 500;
-    white-space: nowrap;
-    -webkit-appearance: none;
-  }
-  .api-hint { font-size: 11px; color: var(--gray-300); line-height: 1.5; }
-  .api-hint a { color: var(--blue); text-decoration: none; }
-  .api-saved { font-size: 12px; color: var(--green); font-weight: 500; }
-
-  .footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 4px;
-  }
-  .upd { font-size: 11px; color: var(--gray-300); }
-  .ref-btn {
-    font-size: 12px;
-    color: var(--blue);
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-family: var(--font);
-    font-weight: 500;
-    padding: 4px 0;
-  }
-
-  .empty { text-align: center; padding: 2rem 1rem; color: var(--gray-300); font-size: 13px; }
-  .spinner { text-align: center; padding: 1.5rem; color: var(--gray-300); font-size: 13px; }
+/* API */
+.api-section{display:flex;flex-direction:column;gap:8px}
+.api-row{display:flex;gap:8px}
+.api-input{flex:1;font-size:13px;padding:10px 12px;border-radius:var(--r-sm);border:1px solid var(--gray-100);background:var(--gray-50);color:var(--gray-900);font-family:var(--font);outline:none}
+.api-input:focus{border-color:var(--blue);background:var(--white)}
+.api-btn{font-size:13px;padding:10px 16px;border-radius:var(--r-sm);border:none;background:var(--blue);color:white;cursor:pointer;font-family:var(--font);font-weight:500;white-space:nowrap;-webkit-appearance:none}
+.api-hint{font-size:11px;color:var(--gray-300);line-height:1.5}
+.api-hint a{color:var(--blue);text-decoration:none}
+.api-saved{font-size:12px;color:var(--green);font-weight:500}
+.footer{display:flex;align-items:center;justify-content:space-between;padding-top:4px}
+.upd{font-size:11px;color:var(--gray-300)}
+.ref-btn{font-size:12px;color:var(--blue);background:none;border:none;cursor:pointer;font-family:var(--font);font-weight:500;padding:4px 0}
+.empty{text-align:center;padding:2rem 1rem;color:var(--gray-300);font-size:13px}
+.spinner{text-align:center;padding:1.5rem;color:var(--gray-300);font-size:13px}
 </style>
 </head>
 <body>
@@ -330,7 +183,7 @@
       <input class="api-input" type="text" id="apiKeyInput" placeholder="Paste Rejseplanen accessId..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
       <button class="api-btn" onclick="saveKey()">Save</button>
     </div>
-    <div class="api-hint">Free key at <a href="https://labs.rejseplanen.dk" target="_blank">labs.rejseplanen.dk</a> — sign up and copy your <strong>accessId</strong>. Saved locally on your device.</div>
+    <div class="api-hint">Free key at <a href="https://labs.rejseplanen.dk" target="_blank">labs.rejseplanen.dk</a> — saved locally on your device.</div>
   </div>
 
   <div class="dir-toggle">
@@ -358,7 +211,7 @@
   </div>
 
   <div class="alert-banner" id="alertBanner">
-    <span class="alert-icon">⚠</span>
+    <span style="font-size:15px;flex-shrink:0">⚠</span>
     <span id="alertText"></span>
   </div>
 
@@ -367,7 +220,7 @@
     <span>Border control at Hyllie (Sweden-bound): scheduled 5-6 min stop. Not a delay — have your ID ready.</span>
   </div>
 
-  <div class="section-label">Next departures — Øresundståg</div>
+  <div class="section-label">Next departures — tap for live journey</div>
   <div class="dep-list" id="depList">
     <div class="spinner">Loading departures...</div>
   </div>
@@ -380,251 +233,295 @@
 </div>
 
 <script>
-var dir = 'hc';
-var apiKey = '';
-var lastDeps = [];
+var dir='hc', apiKey='', lastDeps=[], expandedIdx=null, journeyCache={};
+var ORIGIN={hc:'8600626',ch:'8600645'};
 
-var ORIGIN = { hc: '8600626', ch: '8600645' };
-
-function pad(n) { return String(n).padStart(2, '0'); }
-function nowStr() { var d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()); }
-function fmtTm(t) { if (!t) return ''; var p = t.split(':'); return pad(parseInt(p[0])) + ':' + pad(parseInt(p[1])); }
-function parseMins(t) { if (!t) return null; var p = t.split(':'); return parseInt(p[0]) * 60 + parseInt(p[1]); }
-function minsUntil(t) {
-  if (!t) return 999;
-  var pm = parseMins(t);
-  var n = new Date();
-  var nm = n.getHours() * 60 + n.getMinutes();
-  var d = pm - nm;
-  if (d < -60) d += 1440;
-  return d;
+function pad(n){return String(n).padStart(2,'0')}
+function nowStr(){var d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())}
+function fmtTm(t){if(!t)return '';var p=t.split(':');return pad(parseInt(p[0]))+':'+pad(parseInt(p[1]))}
+function parseMins(t){if(!t)return null;var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1])}
+function minsUntil(t){
+  if(!t)return 999;
+  var pm=parseMins(t),n=new Date(),nm=n.getHours()*60+n.getMinutes(),d=pm-nm;
+  if(d<-60)d+=1440;return d;
 }
-function delayMins(planned, actual) {
-  if (!actual) return 0;
-  var a = parseMins(actual), b = parseMins(planned);
-  if (a === null || b === null) return 0;
-  var d = a - b;
-  if (d < -60) d += 1440;
-  return Math.max(0, d);
+function delayMins(planned,actual){
+  if(!actual)return 0;
+  var a=parseMins(actual),b=parseMins(planned);
+  if(a===null||b===null)return 0;
+  var d=a-b;if(d<-60)d+=1440;return Math.max(0,d);
 }
 
-function loadStoredKey() {
-  try {
-    var k = localStorage.getItem('rp_api_key');
-    if (k) { apiKey = k; showKeySaved(); }
-  } catch(e) {}
+function loadStoredKey(){
+  try{var k=localStorage.getItem('rp_api_key');if(k){apiKey=k;showKeySaved();}}catch(e){}
 }
-
-function saveKey() {
-  var v = document.getElementById('apiKeyInput').value.trim();
-  if (!v) return;
-  apiKey = v;
-  try { localStorage.setItem('rp_api_key', v); } catch(e) {}
-  document.getElementById('apiKeyInput').value = '';
-  showKeySaved();
+function saveKey(){
+  var v=document.getElementById('apiKeyInput').value.trim();
+  if(!v)return;apiKey=v;
+  try{localStorage.setItem('rp_api_key',v);}catch(e){}
+  document.getElementById('apiKeyInput').value='';
+  showKeySaved();loadDepartures();
+}
+function clearKey(){
+  apiKey='';try{localStorage.removeItem('rp_api_key');}catch(e){}
+  document.getElementById('apiStatus').innerHTML='';
+  document.getElementById('apiRow').style.display='flex';
   loadDepartures();
 }
+function showKeySaved(){
+  document.getElementById('apiStatus').innerHTML='<div class="api-saved">API key saved on this device. <button onclick="clearKey()" style="background:none;border:none;color:#6B7280;font-size:11px;cursor:pointer;font-family:var(--font);padding:0;margin-left:6px">Remove</button></div>';
+  document.getElementById('apiRow').style.display='none';
+}
 
-function clearKey() {
-  apiKey = '';
-  try { localStorage.removeItem('rp_api_key'); } catch(e) {}
-  document.getElementById('apiStatus').innerHTML = '';
-  document.getElementById('apiRow').style.display = 'flex';
+function setDir(d){
+  dir=d;expandedIdx=null;journeyCache={};
+  document.getElementById('btn-hc').className='dir-btn'+(d==='hc'?' active':'');
+  document.getElementById('btn-ch').className='dir-btn'+(d==='ch'?' active':'');
+  document.getElementById('borderNote').className='border-note'+(d==='ch'?' show':'');
   loadDepartures();
 }
-
-function showKeySaved() {
-  document.getElementById('apiStatus').innerHTML = '<div class="api-saved">API key saved on this device. <button onclick="clearKey()" style="background:none;border:none;color:#6B7280;font-size:11px;cursor:pointer;font-family:var(--font);padding:0;margin-left:4px">Remove</button></div>';
-  document.getElementById('apiRow').style.display = 'none';
+function isOresund(dep){
+  var n=(dep.name||'').toLowerCase();
+  return n.indexOf('resund')>-1||dep.type==='REG'||dep.type==='IC'||dep.type==='ICE';
 }
 
-function setDir(d) {
-  dir = d;
-  document.getElementById('btn-hc').className = 'dir-btn' + (d === 'hc' ? ' active' : '');
-  document.getElementById('btn-ch').className = 'dir-btn' + (d === 'ch' ? ' active' : '');
-  var bn = document.getElementById('borderNote');
-  bn.className = 'border-note' + (d === 'ch' ? ' show' : '');
-  loadDepartures();
-}
-
-function isOresund(dep) {
-  var n = (dep.name || '').toLowerCase();
-  return n.indexOf('resund') > -1 || dep.type === 'REG' || dep.type === 'IC' || dep.type === 'ICE';
-}
-
-function buildDemo() {
-  var n = new Date();
-  var base = n.getHours() * 60 + n.getMinutes();
-  var dirsHC = ['København H', 'København Lufthavn', 'Helsingør', 'København H', 'København Lufthavn'];
-  var dirsCH = ['Malmö Hyllie', 'Göteborg C', 'Malmö Hyllie', 'Göteborg C', 'Malmö Hyllie'];
-  var delays = [0, 0, 7, 0, 0];
-  var tracks = ['2', '1', '2', '1', '2'];
-  var out = [];
-  for (var i = 0; i < 5; i++) {
-    var depMin = base + (i === 0 ? 3 : 3 + i * 20);
-    var h = Math.floor(depMin / 60) % 24, m = depMin % 60;
-    var planned = pad(h) + ':' + pad(m) + ':00';
-    var dly = delays[i];
-    var actual = dly > 0 ? pad(Math.floor((depMin + dly) / 60) % 24) + ':' + pad((depMin + dly) % 60) + ':00' : null;
-    out.push({ name: 'Øresundståg', direction: (dir === 'hc' ? dirsHC : dirsCH)[i], time: planned, rtTime: actual, cancelled: false, track: tracks[i] });
+/* ---- DEMO DATA ---- */
+function buildDemo(){
+  var n=new Date(),base=n.getHours()*60+n.getMinutes();
+  var dHC=['København H','København Lufthavn','Helsingør','København H','København Lufthavn'];
+  var dCH=['Malmö Hyllie','Göteborg C','Malmö Hyllie','Göteborg C','Malmö Hyllie'];
+  var delays=[0,0,7,0,0],tracks=['2','1','2','1','2'],out=[];
+  for(var i=0;i<5;i++){
+    var dm=base+(i===0?3:3+i*20),h=Math.floor(dm/60)%24,m=dm%60;
+    var pl=pad(h)+':'+pad(m)+':00',dly=delays[i];
+    var ac=dly>0?pad(Math.floor((dm+dly)/60)%24)+':'+pad((dm+dly)%60)+':00':null;
+    out.push({name:'Øresundståg',direction:(dir==='hc'?dHC:dCH)[i],time:pl,rtTime:ac,cancelled:false,track:tracks[i],_demo:i});
   }
   return out;
 }
 
-async function loadDepartures() {
-  document.getElementById('depList').innerHTML = '<div class="spinner">Fetching departures...</div>';
-  var deps = [];
-  var isLive = false;
+function buildDemoJourney(dep){
+  var sHC=[
+    {n:'Helsingborg C',t:'4a'},{n:'Ramlösa',t:'1'},{n:'Landskrona',t:'1'},
+    {n:'Lund C',t:'1'},{n:'Malmö C',t:'1b'},{n:'Triangeln',t:'1'},
+    {n:'Malmö Hyllie',t:'1b'},{n:'Kastrup',t:'1'},{n:'CPH Airport T3',t:''}
+  ];
+  var sCH=[
+    {n:'Göteborg C',t:'4'},{n:'Varberg',t:'2'},{n:'Halmstad C',t:'1'},
+    {n:'Ängelholm',t:'1'},{n:'Helsingborg C',t:'4a'},{n:'Landskrona',t:'1'},
+    {n:'Lund C',t:'1'},{n:'Malmö C',t:'2'},{n:'Triangeln',t:'2'},
+    {n:'Malmö Hyllie',t:'2b'},{n:'Kastrup',t:'2'},{n:'CPH Airport T3',t:''}
+  ];
+  var stops=dir==='hc'?sHC:sCH;
+  var originIdx=dir==='hc'?6:9;
+  var currentIdx=dir==='hc'?4:7;
+  var depMins=parseMins(dep.time),dly=delayMins(dep.time,dep.rtTime);
+  return stops.map(function(s,i){
+    var offset=(i-originIdx)*4;
+    var pm=depMins+offset;
+    var ph=Math.floor(((pm%1440)+1440)%1440/60),pmin=((pm%1440)+1440)%1440%60;
+    var planned=pad(ph)+':'+pad(pmin)+':00';
+    var stopDly=i>=currentIdx?dly:0;
+    var am=(pm+stopDly);
+    var ah=Math.floor(((am%1440)+1440)%1440/60),amin=((am%1440)+1440)%1440%60;
+    var actual=stopDly>0?pad(ah)+':'+pad(amin)+':00':null;
+    return{name:s.n,track:s.t,depTime:planned,rtDepTime:actual,
+      passed:i<currentIdx,current:i===currentIdx,
+      isOrigin:i===originIdx,isDest:i===stops.length-1};
+  });
+}
 
-  if (apiKey) {
-    var url = 'https://www.rejseplanen.dk/api/departureBoard?accessId=' + apiKey + '&format=json&id=' + ORIGIN[dir] + '&duration=120&maxJourneys=30&useTog=1&useBus=0&useMetro=0';
-    try {
-      var resp = await fetch(url);
-      if (resp.ok) {
-        var data = await resp.json();
-        var raw = data.Departure || (data.DepartureBoard && data.DepartureBoard.Departure) || [];
-        if (!Array.isArray(raw)) raw = [raw];
-        deps = raw.filter(isOresund).slice(0, 6);
-        isLive = true;
+/* ---- LOAD ---- */
+async function loadDepartures(){
+  document.getElementById('depList').innerHTML='<div class="spinner">Fetching departures...</div>';
+  var deps=[],isLive=false;
+  if(apiKey){
+    var url='https://www.rejseplanen.dk/api/departureBoard?accessId='+apiKey+'&format=json&id='+ORIGIN[dir]+'&duration=120&maxJourneys=30&useTog=1&useBus=0&useMetro=0';
+    try{
+      var resp=await fetch(url);
+      if(resp.ok){
+        var data=await resp.json();
+        var raw=data.Departure||(data.DepartureBoard&&data.DepartureBoard.Departure)||[];
+        if(!Array.isArray(raw))raw=[raw];
+        deps=raw.filter(isOresund).slice(0,6);isLive=true;
       }
-    } catch (e) {}
+    }catch(e){}
   }
-
-  if (!isLive) deps = buildDemo();
-
-  var dot = document.getElementById('liveDot');
-  var lbl = document.getElementById('liveLabel');
-  if (isLive) { dot.className = 'live-dot on'; lbl.textContent = 'Live'; }
-  else if (apiKey) { dot.className = 'live-dot err'; lbl.textContent = 'Error'; }
-  else { dot.className = 'live-dot'; lbl.textContent = 'Demo'; }
-
-  document.getElementById('updTxt').textContent = 'Updated ' + nowStr();
-  lastDeps = deps;
-  checkAlerts(deps);
-  renderDeps(deps);
-  updateCatch();
+  if(!isLive)deps=buildDemo();
+  var dot=document.getElementById('liveDot'),lbl=document.getElementById('liveLabel');
+  if(isLive){dot.className='live-dot on';lbl.textContent='Live';}
+  else if(apiKey){dot.className='live-dot err';lbl.textContent='Error';}
+  else{dot.className='live-dot';lbl.textContent='Demo';}
+  document.getElementById('updTxt').textContent='Updated '+nowStr();
+  lastDeps=deps;journeyCache={};
+  checkAlerts(deps);renderDeps(deps);updateCatch();
 }
 
-function checkAlerts(deps) {
-  var banner = document.getElementById('alertBanner');
-  var txt = document.getElementById('alertText');
-  var cancelled = deps.filter(function(d) { return d.cancelled; });
-  var bigDelay = deps.filter(function(d) { return delayMins(d.time, d.rtTime) >= 10; });
-  if (cancelled.length) {
-    banner.className = 'alert-banner cancelled show';
-    txt.textContent = fmtTm(cancelled[0].time) + ' to ' + cancelled[0].direction + ' is cancelled. See next departure below.';
-  } else if (bigDelay.length) {
-    var d = bigDelay[0];
-    banner.className = 'alert-banner warning show';
-    txt.textContent = fmtTm(d.time) + ' departure is ' + delayMins(d.time, d.rtTime) + ' min late — now expected at ' + fmtTm(d.rtTime) + '.';
-  } else {
-    banner.className = 'alert-banner';
+/* ---- JOURNEY DETAIL ---- */
+async function fetchJourney(dep,idx){
+  var panel=document.getElementById('jp-'+idx);if(!panel)return;
+  if(journeyCache[idx]){renderJourney(panel,journeyCache[idx],dep);return;}
+  panel.innerHTML='<div class="journey-loading">Loading live journey...</div>';
+  if(!apiKey||!dep.journeyDetailRef){
+    var d=buildDemoJourney(dep);journeyCache[idx]=d;renderJourney(panel,d,dep);return;
+  }
+  try{
+    var ref=dep.journeyDetailRef.ref||dep.journeyDetailRef;
+    var url='https://www.rejseplanen.dk/api/journeyDetail?accessId='+apiKey+'&format=json&ref='+encodeURIComponent(ref);
+    var resp=await fetch(url);if(!resp.ok)throw 0;
+    var data=await resp.json();
+    var jd=data.JourneyDetail||data;
+    var raw=jd.Stops&&jd.Stops.Stop||jd.Stop||[];
+    if(!Array.isArray(raw))raw=[raw];
+    var now=new Date(),nowM=now.getHours()*60+now.getMinutes();
+    var foundCurrent=false;
+    var parsed=raw.map(function(s,i){
+      var dt=s.depTime||s.time||'',rt=s.rtDepTime||s.rtTime||null;
+      var at=s.arrTime||dt,rta=s.rtArrTime||rt;
+      var eff=rt||dt,em=parseMins(eff);
+      var passed=em!==null&&(nowM-em)>1;
+      var current=!foundCurrent&&!passed&&em!==null;
+      if(current)foundCurrent=true;
+      return{name:s.name||s.stopName||'',track:s.track||s.depTrack||'',
+        depTime:dt,rtDepTime:rt,arrTime:at,rtArrTime:rta,
+        passed:passed,current:current,isOrigin:i===0,isDest:i===raw.length-1};
+    });
+    journeyCache[idx]=parsed;renderJourney(panel,parsed,dep);
+  }catch(e){
+    var d=buildDemoJourney(dep);journeyCache[idx]=d;renderJourney(panel,d,dep);
   }
 }
 
-function renderDeps(deps) {
-  var walk = parseInt(document.getElementById('walkSlider').value);
-  if (!deps || !deps.length) {
-    document.getElementById('depList').innerHTML = '<div class="empty">No Øresundståg departures in the next 2 hours.</div>';
-    return;
-  }
-  var html = '';
-  for (var i = 0; i < deps.length; i++) {
-    var d = deps[i];
-    var planned = fmtTm(d.time);
-    var actual = d.rtTime ? fmtTm(d.rtTime) : null;
-    var delay = delayMins(d.time, d.rtTime);
-    var isCancelled = !!d.cancelled;
-    var isDelayed = delay > 0 && !isCancelled;
-    var isNext = i === 0 && !isCancelled;
-    var effectiveTime = d.rtTime || d.time;
-    var minsAway = minsUntil(effectiveTime);
-    var isCatchable = !isCancelled && minsAway >= walk && minsAway <= walk + 5;
-
-    var cls = 'dep-card';
-    if (isNext) cls += ' is-next';
-    else if (isCancelled) cls += ' is-cancelled';
-    else if (isDelayed) cls += ' is-delayed';
-    if (isCatchable) cls += ' catchable';
-
-    var tags = '';
-    if (isCancelled) tags += '<span class="tag tag-cancel">Cancelled</span>';
-    else if (isNext) tags += '<span class="tag tag-next">Next</span>';
-    if (isCatchable) tags += '<span class="tag tag-catch">Can catch</span>';
-    if (isDelayed) tags += '<span class="tag tag-delay">+' + delay + ' min</span>';
-
-    var timeHtml = '';
-    if (isCancelled) {
-      timeHtml = '<div class="dep-planned struck">' + planned + '</div><div class="dep-actual">Cancelled</div>';
-    } else if (isDelayed) {
-      timeHtml = '<div class="dep-planned struck">' + planned + '</div><div class="dep-actual">' + actual + '</div>';
-    } else {
-      timeHtml = '<div class="dep-planned">' + planned + '</div><div class="dep-ontime">On time</div>';
-    }
-
-    var cdLabel = '', cdCls = 'dep-countdown';
-    if (!isCancelled) {
-      if (minsAway <= 0) { cdLabel = 'Boarding now'; cdCls = 'dep-countdown boarding'; }
-      else if (minsAway <= 2) { cdLabel = 'Departs in ' + minsAway + ' min'; cdCls = 'dep-countdown soon'; }
-      else { cdLabel = 'in ' + minsAway + ' min'; }
-    }
-
-    var trackHtml = d.track ? '<div class="dep-track">Track ' + d.track + '</div>' : '';
-    var badgeCls = 'line-badge' + (isCancelled ? ' red' : '');
-
-    html += '<div class="' + cls + '">' +
-      '<div class="' + badgeCls + '">Ø</div>' +
-      '<div class="dep-mid">' +
-        '<div class="dep-name">Øresundståg ' + tags + '</div>' +
-        '<div class="dep-dir">→ ' + d.direction + '</div>' +
-      '</div>' +
-      '<div class="dep-right">' + timeHtml + '<div class="' + cdCls + '">' + cdLabel + '</div>' + trackHtml + '</div>' +
+function renderJourney(panel,stops,dep){
+  var h='<div class="journey-header"><span class="journey-title">Full route</span><span class="journey-name">→ '+dep.direction+'</span></div>';
+  h+='<div class="stop-list">';
+  for(var i=0;i<stops.length;i++){
+    var s=stops[i],isFirst=i===0,isLast=i===stops.length-1;
+    var t=s.depTime||s.arrTime,rt=s.rtDepTime||s.rtArrTime;
+    var dly=delayMins(t,rt),isDelayed=dly>0;
+    var dotCls=s.current?'stop-dot current':s.isOrigin?'stop-dot origin':s.isDest?'stop-dot dest':s.passed?'stop-dot passed':'stop-dot';
+    var nameCls=s.current?'stop-name cur':(s.isOrigin||s.isDest)?'stop-name bold':'stop-name';
+    var topLine=isFirst?'<div class="stop-spacer"></div>':'<div class="stop-line'+(s.passed||s.current?' passed':'')+'"></div>';
+    var botLine=isLast?'<div class="stop-spacer"></div>':'<div class="stop-line'+(s.passed?' passed':'')+'"></div>';
+    var tCls='s-planned'+((s.isOrigin||s.isDest)?' bold':'')+(isDelayed?' struck':'');
+    var tHtml='<div class="'+tCls+'">'+fmtTm(t)+'</div>';
+    if(isDelayed)tHtml+='<div class="s-actual">'+fmtTm(rt)+'</div>';
+    if(s.current)tHtml+='<div class="s-cur">Here now</div>';
+    var pHtml=s.track?'<div class="stop-platform">Spår '+s.track+'</div>':'';
+    h+='<div class="stop-row">'+
+      '<div class="stop-line-col">'+topLine+'<div class="stop-dot-wrap"><div class="'+dotCls+'"></div></div>'+botLine+'</div>'+
+      '<div class="stop-content"><div><div class="'+nameCls+'">'+s.name+'</div>'+pHtml+'</div>'+
+      '<div class="stop-times">'+tHtml+'</div></div>'+
     '</div>';
   }
-  document.getElementById('depList').innerHTML = html;
+  h+='</div>';panel.innerHTML=h;
 }
 
-function updateCatch() {
-  var walk = parseInt(document.getElementById('walkSlider').value);
-  document.getElementById('walkVal').textContent = walk;
-  if (!lastDeps.length) return;
+/* ---- TOGGLE EXPAND ---- */
+function toggleExpand(idx){
+  var was=expandedIdx===idx;
+  document.querySelectorAll('.dep-wrap').forEach(function(w){w.classList.remove('expanded');});
+  if(was){expandedIdx=null;return;}
+  var wrap=document.getElementById('dw-'+idx);if(!wrap)return;
+  wrap.classList.add('expanded');expandedIdx=idx;
+  fetchJourney(lastDeps[idx],idx);
+}
 
-  var catchable = lastDeps.filter(function(d) {
-    if (d.cancelled) return false;
-    return minsUntil(d.rtTime || d.time) >= walk && minsUntil(d.rtTime || d.time) <= walk + 5;
-  });
-  var next = lastDeps.filter(function(d) {
-    if (d.cancelled) return false;
-    return minsUntil(d.rtTime || d.time) > walk + 5;
-  });
+/* ---- ALERTS ---- */
+function checkAlerts(deps){
+  var banner=document.getElementById('alertBanner'),txt=document.getElementById('alertText');
+  var c=deps.filter(function(d){return d.cancelled;});
+  var bd=deps.filter(function(d){return delayMins(d.time,d.rtTime)>=10;});
+  if(c.length){banner.className='alert-banner cancelled show';txt.textContent=fmtTm(c[0].time)+' to '+c[0].direction+' is cancelled.';}
+  else if(bd.length){var d=bd[0];banner.className='alert-banner warning show';txt.textContent=fmtTm(d.time)+' is '+delayMins(d.time,d.rtTime)+' min late — now '+fmtTm(d.rtTime)+'.';}
+  else{banner.className='alert-banner';}
+}
 
-  var res = document.getElementById('catchResult');
-  if (catchable.length) {
-    var tr = catchable[0];
-    var m = minsUntil(tr.rtTime || tr.time);
-    res.className = 'catch-result green';
-    res.textContent = 'Yes — the ' + fmtTm(tr.rtTime || tr.time) + ' train leaves in ' + m + ' min. Leave now and you\'ll make it.';
-  } else if (next.length) {
-    var nx = next[0];
-    var nm = minsUntil(nx.rtTime || nx.time);
-    var wait = Math.round(nm - walk);
-    if (wait >= 0) {
-      res.className = 'catch-result green';
-      res.textContent = 'Your train is ' + fmtTm(nx.rtTime || nx.time) + ' — ' + wait + ' min to spare after you arrive.';
-    } else {
-      res.className = 'catch-result amber';
-      res.textContent = 'Tight — the ' + fmtTm(nx.rtTime || nx.time) + ' leaves ' + Math.abs(wait) + ' min before you arrive. Next one after that.';
+/* ---- RENDER DEPS ---- */
+function renderDeps(deps){
+  var walk=parseInt(document.getElementById('walkSlider').value);
+  if(!deps||!deps.length){document.getElementById('depList').innerHTML='<div class="empty">No departures found.</div>';return;}
+  var html='';
+  for(var i=0;i<deps.length;i++){
+    var d=deps[i];
+    var planned=fmtTm(d.time),actual=d.rtTime?fmtTm(d.rtTime):null;
+    var delay=delayMins(d.time,d.rtTime);
+    var isCan=!!d.cancelled,isDel=delay>0&&!isCan,isNext=i===0&&!isCan;
+    var ma=minsUntil(d.rtTime||d.time);
+    var isCatch=!isCan&&ma>=walk&&ma<=walk+5;
+    var isExp=expandedIdx===i;
+    var wc='dep-wrap';
+    if(isNext)wc+=' is-next';else if(isCan)wc+=' is-cancelled';else if(isDel)wc+=' is-delayed';
+    if(isCatch)wc+=' catchable';if(isExp)wc+=' expanded';
+    var tags='';
+    if(isCan)tags+='<span class="tag tag-cancel">Cancelled</span>';
+    else if(isNext)tags+='<span class="tag tag-next">Next</span>';
+    if(isCatch)tags+='<span class="tag tag-catch">Can catch</span>';
+    if(isDel)tags+='<span class="tag tag-delay">+'+delay+' min</span>';
+    var tHtml='';
+    if(isCan)tHtml='<div class="dep-planned struck">'+planned+'</div><div class="dep-actual">Cancelled</div>';
+    else if(isDel)tHtml='<div class="dep-planned struck">'+planned+'</div><div class="dep-actual">'+actual+'</div>';
+    else tHtml='<div class="dep-planned">'+planned+'</div><div class="dep-ontime">On time</div>';
+    var cl='',cc='dep-countdown';
+    if(!isCan){
+      if(ma<=0){cl='Boarding now';cc='dep-countdown boarding';}
+      else if(ma<=2){cl='Departs in '+ma+' min';cc='dep-countdown soon';}
+      else{cl='in '+ma+' min';}
     }
+    var trk=d.track?'<div class="dep-track">Track '+d.track+'</div>':'';
+    var bc='line-badge'+(isCan?' red':'');
+    var panInner=isExp&&journeyCache[i]?'loading':'';
+    html+='<div class="'+wc+'" id="dw-'+i+'">'+
+      '<div class="dep-card" onclick="toggleExpand('+i+')">'+
+        '<div class="'+bc+'">Ø</div>'+
+        '<div class="dep-mid"><div class="dep-name">Øresundståg '+tags+'</div><div class="dep-dir">→ '+d.direction+'</div></div>'+
+        '<div class="dep-right">'+tHtml+'<div class="'+cc+'">'+cl+'</div>'+trk+'</div>'+
+        '<div class="dep-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="#C0C4CD" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>'+
+      '</div>'+
+      '<div class="journey-panel" id="jp-'+i+'"></div>'+
+    '</div>';
+  }
+  document.getElementById('depList').innerHTML=html;
+  if(expandedIdx!==null){
+    var p=document.getElementById('jp-'+expandedIdx);
+    if(p){
+      if(journeyCache[expandedIdx])renderJourney(p,journeyCache[expandedIdx],lastDeps[expandedIdx]);
+      else fetchJourney(lastDeps[expandedIdx],expandedIdx);
+    }
+  }
+}
+
+/* ---- CATCH ---- */
+function updateCatch(){
+  var walk=parseInt(document.getElementById('walkSlider').value);
+  document.getElementById('walkVal').textContent=walk;
+  if(!lastDeps.length)return;
+  var catchable=lastDeps.filter(function(d){
+    if(d.cancelled)return false;
+    var m=minsUntil(d.rtTime||d.time);return m>=walk&&m<=walk+5;
+  });
+  var next=lastDeps.filter(function(d){
+    if(d.cancelled)return false;return minsUntil(d.rtTime||d.time)>walk+5;
+  });
+  var res=document.getElementById('catchResult');
+  if(catchable.length){
+    var tr=catchable[0],m=minsUntil(tr.rtTime||tr.time);
+    res.className='catch-result green';
+    res.textContent='Yes — the '+fmtTm(tr.rtTime||tr.time)+' train leaves in '+m+' min. Leave now and you\'ll make it.';
+  } else if(next.length){
+    var nx=next[0],nm=minsUntil(nx.rtTime||nx.time),wait=Math.round(nm-walk);
+    res.className=wait>=0?'catch-result green':'catch-result amber';
+    res.textContent=wait>=0?'Your train is '+fmtTm(nx.rtTime||nx.time)+' — '+wait+' min to spare after you arrive.':
+      'Tight — the '+fmtTm(nx.rtTime||nx.time)+' leaves '+Math.abs(wait)+' min before you arrive.';
   } else {
-    res.className = 'catch-result red';
-    res.textContent = 'No catchable trains found in the next 2 hours.';
+    res.className='catch-result red';res.textContent='No catchable trains in the next 2 hours.';
   }
   renderDeps(lastDeps);
 }
 
 loadStoredKey();
 loadDepartures();
-setInterval(loadDepartures, 30000);
+setInterval(loadDepartures,30000);
 </script>
 </body>
 </html>
