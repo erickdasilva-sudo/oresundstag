@@ -303,7 +303,7 @@ function buildDemo(){
 function buildDemoJourney(dep){
   var isHC=dir==='hc';
   var sHC=[
-    {n:'Helsingborg C',t:'4a'},{n:'Landskrona',t:'1'},
+    {n:'Helsingborg C',t:'4a'},{n:'Ramlösa',t:'1'},{n:'Landskrona',t:'1'},
     {n:'Lund C',t:'1'},{n:'Malmö C',t:'1b'},{n:'Triangeln',t:'1'},
     {n:'Malmö Hyllie',t:'1b'},{n:'CPH Lufthavn',t:'1'}
   ];
@@ -314,8 +314,8 @@ function buildDemoJourney(dep){
     {n:'Malmö C',t:'2'},{n:'Lund C',t:'1'},{n:'Helsingborg C',t:'4a'}
   ];
   var stops=isHC?sHC:sCH;
-  var originIdx=isHC?5:3;
-  var currentIdx=isHC?3:2;
+  var originIdx=isHC?6:3;
+  var currentIdx=isHC?4:2;
   var depMins=parseMins(dep.time),dly=delayMins(dep.time,dep.rtTime);
   return stops.map(function(s,i){
     var offset=(i-originIdx)*4;
