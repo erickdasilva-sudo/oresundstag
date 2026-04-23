@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#003F87">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Øresundståg">
+<meta name="description" content="Live Øresundståg departures — Hyllie ↔ CPH Airport">
+<title>Øresundståg — Hyllie ↔ CPH</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #003F87;
+    --blue-light: #EDF4FC;
+    --blue-mid: #185FA5;
+    --red: #D32B2E;
+    --red-light: #FCEBEB;
+    --green: #1D9E75;
+    --green-light: #E1F5EE;
+    --amber: #854F0B;
+    --amber-light: #FAEEDA;
+    --gray-50: #F7F8FA;
+    --gray-100: #EAECF0;
+    --gray-300: #C0C4CD;
+    --gray-500: #6B7280;
+    --gray-700: #374151;
+    --gray-900: #111827;
+    --white: #ffffff;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --font: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--font);
+    background: var(--gray-50);
+    color: var(--gray-900);
+    min-height: 100dvh;
+    padding-bottom: calc(1rem + var(--safe-bottom));
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .header {
+    background: var(--blue);
+    padding: calc(1rem + var(--safe-top)) 1rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .train-icon {
+    width: 38px; height: 38px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .train-icon svg { width: 20px; height: 20px; fill: white; }
+  .header-title { font-size: 17px; font-weight: 500; color: white; }
+  .header-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px; }
+  .live-badge {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: white;
+  }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #9ca3af; flex-shrink: 0; }
+  .live-dot.on { background: #4ade80; animation: pulse 1.5s infinite; }
+  .live-dot.err { background: #f87171; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  .main {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .dir-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .dir-btn {
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--gray-100);
+    background: var(--white);
+    cursor: pointer;
+    font-family: var(--font);
+    text-align: left;
+    transition: all .15s;
+    -webkit-appearance: none;
+  }
+  .dir-btn.active {
+    border-color: var(--blue);
+    background: var(--blue-light);
+  }
+  .dir-btn-main {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .dir-btn.active .dir-btn-main { color: var(--blue); }
+  .dir-btn-sub { font-size: 11px; color: var(--gray-300); margin-top: 2px; }
+
+  .card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-100);
+    padding: 14px 16px;
+  }
+
+  .catch-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .catch-title svg { width: 14px; height: 14px; fill: var(--blue); }
+  .catch-row { display: flex; align-items: center; gap: 10px; }
+  .catch-label { font-size: 13px; color: var(--gray-500); white-space: nowrap; }
+  .catch-slider { flex: 1; accent-color: var(--blue); }
+  .catch-val { font-size: 14px; font-weight: 500; color: var(--gray-900); min-width: 52px; text-align: right; font-family: var(--font-mono); }
+  .catch-result {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+  .catch-result.green { background: var(--green-light); color: #085041; }
+  .catch-result.amber { background: var(--amber-light); color: var(--amber); }
+  .catch-result.red { background: var(--red-light); color: #791F1F; }
+
+  .alert-banner {
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    display: none;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .alert-banner.show { display: flex; }
+  .alert-banner.cancelled { background: var(--red-light); color: #791F1F; border: 1px solid #F09595; }
+  .alert-banner.warning { background: var(--amber-light); color: var(--amber); border: 1px solid #EF9F27; }
+  .alert-icon { font-size: 15px; flex-shrink: 0; }
+
+  .border-note {
+    background: var(--amber-light);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--amber);
+    display: none;
+    gap: 8px;
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+  .border-note.show { display: flex; }
+  .border-note svg { width: 14px; height: 14px; fill: var(--amber); flex-shrink: 0; margin-top: 1px; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--gray-300);
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    margin-bottom: -4px;
+  }
+
+  .dep-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .dep-card {
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    border-radius: var(--radius-md);
+    padding: 13px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color .15s;
+  }
+  .dep-card.is-next { border: 2px solid var(--blue); }
+  .dep-card.is-delayed { border-left: 3px solid var(--red); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .dep-card.is-cancelled { opacity: .6; background: var(--red-light); border-left: 3px solid var(--red); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .dep-card.catchable { border-color: var(--green); }
+
+  .line-badge {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    background: var(--blue);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: white;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+  }
+  .line-badge.red { background: var(--red); }
+
+  .dep-mid { flex: 1; min-width: 0; }
+  .dep-name { font-size: 13px; font-weight: 500; color: var(--gray-900); display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 3px; }
+  .dep-dir { font-size: 12px; color: var(--gray-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .tag { font-size: 10px; padding: 2px 6px; border-radius: 5px; font-weight: 500; }
+  .tag-next { background: var(--blue); color: white; }
+  .tag-catch { background: var(--green); color: white; }
+  .tag-delay { background: var(--red-light); color: #A32D2D; }
+  .tag-cancel { background: var(--red); color: white; }
+
+  .dep-right { text-align: right; flex-shrink: 0; }
+  .dep-planned { font-size: 20px; font-weight: 500; color: var(--gray-900); line-height: 1; font-family: var(--font-mono); }
+  .dep-planned.struck { text-decoration: line-through; color: var(--gray-300); font-size: 14px; }
+  .dep-actual { font-size: 15px; font-weight: 500; color: var(--red); font-family: var(--font-mono); margin-top: 1px; }
+  .dep-ontime { font-size: 11px; color: var(--green); margin-top: 2px; }
+  .dep-countdown { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
+  .dep-countdown.soon { color: var(--red); font-weight: 500; }
+  .dep-countdown.boarding { color: var(--green); font-weight: 500; }
+  .dep-track { font-size: 10px; color: var(--gray-300); margin-top: 3px; font-family: var(--font-mono); }
+
+  .api-section { display: flex; flex-direction: column; gap: 8px; }
+  .api-row { display: flex; gap: 8px; }
+  .api-input {
+    flex: 1;
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--gray-100);
+    background: var(--gray-50);
+    color: var(--gray-900);
+    font-family: var(--font);
+    outline: none;
+  }
+  .api-input:focus { border-color: var(--blue); background: var(--white); }
+  .api-btn {
+    font-size: 13px;
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--blue);
+    color: white;
+    cursor: pointer;
+    font-family: var(--font);
+    font-weight: 500;
+    white-space: nowrap;
+    -webkit-appearance: none;
+  }
+  .api-hint { font-size: 11px; color: var(--gray-300); line-height: 1.5; }
+  .api-hint a { color: var(--blue); text-decoration: none; }
+  .api-saved { font-size: 12px; color: var(--green); font-weight: 500; }
+
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 4px;
+  }
+  .upd { font-size: 11px; color: var(--gray-300); }
+  .ref-btn {
+    font-size: 12px;
+    color: var(--blue);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    font-weight: 500;
+    padding: 4px 0;
+  }
+
+  .empty { text-align: center; padding: 2rem 1rem; color: var(--gray-300); font-size: 13px; }
+  .spinner { text-align: center; padding: 1.5rem; color: var(--gray-300); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="train-icon">
+        <svg viewBox="0 0 24 24"><path d="M4 16c0 1.1.9 2 2 2h1l-1 3h2l1-3h6l1 3h2l-1-3h1c1.1 0 2-.9 2-2V6c0-3-3.5-4-9-4S4 3 4 6v10zm8-11c4.2 0 6.5.8 7 1.5V9H5V6.5C5.5 5.8 7.8 5 12 5zM5 11h14v4H5v-4z"/></svg>
+      </div>
+      <div>
+        <div class="header-title">Øresundståg</div>
+        <div class="header-sub">Hyllie ↔ CPH Airport</div>
+      </div>
+    </div>
+    <div class="live-badge">
+      <div class="live-dot" id="liveDot"></div>
+      <span id="liveLabel">Demo</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="api-section card">
+    <div id="apiStatus"></div>
+    <div class="api-row" id="apiRow">
+      <input class="api-input" type="text" id="apiKeyInput" placeholder="Paste Rejseplanen accessId..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button class="api-btn" onclick="saveKey()">Save</button>
+    </div>
+    <div class="api-hint">Free key at <a href="https://labs.rejseplanen.dk" target="_blank">labs.rejseplanen.dk</a> — sign up and copy your <strong>accessId</strong>. Saved locally on your device.</div>
+  </div>
+
+  <div class="dir-toggle">
+    <button class="dir-btn active" id="btn-hc" onclick="setDir('hc')">
+      <div class="dir-btn-main">→ Hyllie → CPH</div>
+      <div class="dir-btn-sub">To Airport T3</div>
+    </button>
+    <button class="dir-btn" id="btn-ch" onclick="setDir('ch')">
+      <div class="dir-btn-main">← CPH → Hyllie</div>
+      <div class="dir-btn-sub">To Malmö Hyllie</div>
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="catch-title">
+      <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+      Can I catch it?
+    </div>
+    <div class="catch-row">
+      <span class="catch-label">I am</span>
+      <input type="range" min="1" max="30" value="8" step="1" class="catch-slider" id="walkSlider" oninput="updateCatch()">
+      <span class="catch-val"><span id="walkVal">8</span> min away</span>
+    </div>
+    <div class="catch-result green" id="catchResult">Checking...</div>
+  </div>
+
+  <div class="alert-banner" id="alertBanner">
+    <span class="alert-icon">⚠</span>
+    <span id="alertText"></span>
+  </div>
+
+  <div class="border-note" id="borderNote">
+    <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+    <span>Border control at Hyllie (Sweden-bound): scheduled 5-6 min stop. Not a delay — have your ID ready.</span>
+  </div>
+
+  <div class="section-label">Next departures — Øresundståg</div>
+  <div class="dep-list" id="depList">
+    <div class="spinner">Loading departures...</div>
+  </div>
+
+  <div class="footer">
+    <span class="upd" id="updTxt"></span>
+    <button class="ref-btn" onclick="loadDepartures()">Refresh ↻</button>
+  </div>
+
+</div>
+
+<script>
+var dir = 'hc';
+var apiKey = '';
+var lastDeps = [];
+
+var ORIGIN = { hc: '8600626', ch: '8600645' };
+
+function pad(n) { return String(n).padStart(2, '0'); }
+function nowStr() { var d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()); }
+function fmtTm(t) { if (!t) return ''; var p = t.split(':'); return pad(parseInt(p[0])) + ':' + pad(parseInt(p[1])); }
+function parseMins(t) { if (!t) return null; var p = t.split(':'); return parseInt(p[0]) * 60 + parseInt(p[1]); }
+function minsUntil(t) {
+  if (!t) return 999;
+  var pm = parseMins(t);
+  var n = new Date();
+  var nm = n.getHours() * 60 + n.getMinutes();
+  var d = pm - nm;
+  if (d < -60) d += 1440;
+  return d;
+}
+function delayMins(planned, actual) {
+  if (!actual) return 0;
+  var a = parseMins(actual), b = parseMins(planned);
+  if (a === null || b === null) return 0;
+  var d = a - b;
+  if (d < -60) d += 1440;
+  return Math.max(0, d);
+}
+
+function loadStoredKey() {
+  try {
+    var k = localStorage.getItem('rp_api_key');
+    if (k) { apiKey = k; showKeySaved(); }
+  } catch(e) {}
+}
+
+function saveKey() {
+  var v = document.getElementById('apiKeyInput').value.trim();
+  if (!v) return;
+  apiKey = v;
+  try { localStorage.setItem('rp_api_key', v); } catch(e) {}
+  document.getElementById('apiKeyInput').value = '';
+  showKeySaved();
+  loadDepartures();
+}
+
+function clearKey() {
+  apiKey = '';
+  try { localStorage.removeItem('rp_api_key'); } catch(e) {}
+  document.getElementById('apiStatus').innerHTML = '';
+  document.getElementById('apiRow').style.display = 'flex';
+  loadDepartures();
+}
+
+function showKeySaved() {
+  document.getElementById('apiStatus').innerHTML = '<div class="api-saved">API key saved on this device. <button onclick="clearKey()" style="background:none;border:none;color:#6B7280;font-size:11px;cursor:pointer;font-family:var(--font);padding:0;margin-left:4px">Remove</button></div>';
+  document.getElementById('apiRow').style.display = 'none';
+}
+
+function setDir(d) {
+  dir = d;
+  document.getElementById('btn-hc').className = 'dir-btn' + (d === 'hc' ? ' active' : '');
+  document.getElementById('btn-ch').className = 'dir-btn' + (d === 'ch' ? ' active' : '');
+  var bn = document.getElementById('borderNote');
+  bn.className = 'border-note' + (d === 'ch' ? ' show' : '');
+  loadDepartures();
+}
+
+function isOresund(dep) {
+  var n = (dep.name || '').toLowerCase();
+  return n.indexOf('resund') > -1 || dep.type === 'REG' || dep.type === 'IC' || dep.type === 'ICE';
+}
+
+function buildDemo() {
+  var n = new Date();
+  var base = n.getHours() * 60 + n.getMinutes();
+  var dirsHC = ['København H', 'København Lufthavn', 'Helsingør', 'København H', 'København Lufthavn'];
+  var dirsCH = ['Malmö Hyllie', 'Göteborg C', 'Malmö Hyllie', 'Göteborg C', 'Malmö Hyllie'];
+  var delays = [0, 0, 7, 0, 0];
+  var tracks = ['2', '1', '2', '1', '2'];
+  var out = [];
+  for (var i = 0; i < 5; i++) {
+    var depMin = base + (i === 0 ? 3 : 3 + i * 20);
+    var h = Math.floor(depMin / 60) % 24, m = depMin % 60;
+    var planned = pad(h) + ':' + pad(m) + ':00';
+    var dly = delays[i];
+    var actual = dly > 0 ? pad(Math.floor((depMin + dly) / 60) % 24) + ':' + pad((depMin + dly) % 60) + ':00' : null;
+    out.push({ name: 'Øresundståg', direction: (dir === 'hc' ? dirsHC : dirsCH)[i], time: planned, rtTime: actual, cancelled: false, track: tracks[i] });
+  }
+  return out;
+}
+
+async function loadDepartures() {
+  document.getElementById('depList').innerHTML = '<div class="spinner">Fetching departures...</div>';
+  var deps = [];
+  var isLive = false;
+
+  if (apiKey) {
+    var url = 'https://www.rejseplanen.dk/api/departureBoard?accessId=' + apiKey + '&format=json&id=' + ORIGIN[dir] + '&duration=120&maxJourneys=30&useTog=1&useBus=0&useMetro=0';
+    try {
+      var resp = await fetch(url);
+      if (resp.ok) {
+        var data = await resp.json();
+        var raw = data.Departure || (data.DepartureBoard && data.DepartureBoard.Departure) || [];
+        if (!Array.isArray(raw)) raw = [raw];
+        deps = raw.filter(isOresund).slice(0, 6);
+        isLive = true;
+      }
+    } catch (e) {}
+  }
+
+  if (!isLive) deps = buildDemo();
+
+  var dot = document.getElementById('liveDot');
+  var lbl = document.getElementById('liveLabel');
+  if (isLive) { dot.className = 'live-dot on'; lbl.textContent = 'Live'; }
+  else if (apiKey) { dot.className = 'live-dot err'; lbl.textContent = 'Error'; }
+  else { dot.className = 'live-dot'; lbl.textContent = 'Demo'; }
+
+  document.getElementById('updTxt').textContent = 'Updated ' + nowStr();
+  lastDeps = deps;
+  checkAlerts(deps);
+  renderDeps(deps);
+  updateCatch();
+}
+
+function checkAlerts(deps) {
+  var banner = document.getElementById('alertBanner');
+  var txt = document.getElementById('alertText');
+  var cancelled = deps.filter(function(d) { return d.cancelled; });
+  var bigDelay = deps.filter(function(d) { return delayMins(d.time, d.rtTime) >= 10; });
+  if (cancelled.length) {
+    banner.className = 'alert-banner cancelled show';
+    txt.textContent = fmtTm(cancelled[0].time) + ' to ' + cancelled[0].direction + ' is cancelled. See next departure below.';
+  } else if (bigDelay.length) {
+    var d = bigDelay[0];
+    banner.className = 'alert-banner warning show';
+    txt.textContent = fmtTm(d.time) + ' departure is ' + delayMins(d.time, d.rtTime) + ' min late — now expected at ' + fmtTm(d.rtTime) + '.';
+  } else {
+    banner.className = 'alert-banner';
+  }
+}
+
+function renderDeps(deps) {
+  var walk = parseInt(document.getElementById('walkSlider').value);
+  if (!deps || !deps.length) {
+    document.getElementById('depList').innerHTML = '<div class="empty">No Øresundståg departures in the next 2 hours.</div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < deps.length; i++) {
+    var d = deps[i];
+    var planned = fmtTm(d.time);
+    var actual = d.rtTime ? fmtTm(d.rtTime) : null;
+    var delay = delayMins(d.time, d.rtTime);
+    var isCancelled = !!d.cancelled;
+    var isDelayed = delay > 0 && !isCancelled;
+    var isNext = i === 0 && !isCancelled;
+    var effectiveTime = d.rtTime || d.time;
+    var minsAway = minsUntil(effectiveTime);
+    var isCatchable = !isCancelled && minsAway >= walk && minsAway <= walk + 5;
+
+    var cls = 'dep-card';
+    if (isNext) cls += ' is-next';
+    else if (isCancelled) cls += ' is-cancelled';
+    else if (isDelayed) cls += ' is-delayed';
+    if (isCatchable) cls += ' catchable';
+
+    var tags = '';
+    if (isCancelled) tags += '<span class="tag tag-cancel">Cancelled</span>';
+    else if (isNext) tags += '<span class="tag tag-next">Next</span>';
+    if (isCatchable) tags += '<span class="tag tag-catch">Can catch</span>';
+    if (isDelayed) tags += '<span class="tag tag-delay">+' + delay + ' min</span>';
+
+    var timeHtml = '';
+    if (isCancelled) {
+      timeHtml = '<div class="dep-planned struck">' + planned + '</div><div class="dep-actual">Cancelled</div>';
+    } else if (isDelayed) {
+      timeHtml = '<div class="dep-planned struck">' + planned + '</div><div class="dep-actual">' + actual + '</div>';
+    } else {
+      timeHtml = '<div class="dep-planned">' + planned + '</div><div class="dep-ontime">On time</div>';
+    }
+
+    var cdLabel = '', cdCls = 'dep-countdown';
+    if (!isCancelled) {
+      if (minsAway <= 0) { cdLabel = 'Boarding now'; cdCls = 'dep-countdown boarding'; }
+      else if (minsAway <= 2) { cdLabel = 'Departs in ' + minsAway + ' min'; cdCls = 'dep-countdown soon'; }
+      else { cdLabel = 'in ' + minsAway + ' min'; }
+    }
+
+    var trackHtml = d.track ? '<div class="dep-track">Track ' + d.track + '</div>' : '';
+    var badgeCls = 'line-badge' + (isCancelled ? ' red' : '');
+
+    html += '<div class="' + cls + '">' +
+      '<div class="' + badgeCls + '">Ø</div>' +
+      '<div class="dep-mid">' +
+        '<div class="dep-name">Øresundståg ' + tags + '</div>' +
+        '<div class="dep-dir">→ ' + d.direction + '</div>' +
+      '</div>' +
+      '<div class="dep-right">' + timeHtml + '<div class="' + cdCls + '">' + cdLabel + '</div>' + trackHtml + '</div>' +
+    '</div>';
+  }
+  document.getElementById('depList').innerHTML = html;
+}
+
+function updateCatch() {
+  var walk = parseInt(document.getElementById('walkSlider').value);
+  document.getElementById('walkVal').textContent = walk;
+  if (!lastDeps.length) return;
+
+  var catchable = lastDeps.filter(function(d) {
+    if (d.cancelled) return false;
+    return minsUntil(d.rtTime || d.time) >= walk && minsUntil(d.rtTime || d.time) <= walk + 5;
+  });
+  var next = lastDeps.filter(function(d) {
+    if (d.cancelled) return false;
+    return minsUntil(d.rtTime || d.time) > walk + 5;
+  });
+
+  var res = document.getElementById('catchResult');
+  if (catchable.length) {
+    var tr = catchable[0];
+    var m = minsUntil(tr.rtTime || tr.time);
+    res.className = 'catch-result green';
+    res.textContent = 'Yes — the ' + fmtTm(tr.rtTime || tr.time) + ' train leaves in ' + m + ' min. Leave now and you\'ll make it.';
+  } else if (next.length) {
+    var nx = next[0];
+    var nm = minsUntil(nx.rtTime || nx.time);
+    var wait = Math.round(nm - walk);
+    if (wait >= 0) {
+      res.className = 'catch-result green';
+      res.textContent = 'Your train is ' + fmtTm(nx.rtTime || nx.time) + ' — ' + wait + ' min to spare after you arrive.';
+    } else {
+      res.className = 'catch-result amber';
+      res.textContent = 'Tight — the ' + fmtTm(nx.rtTime || nx.time) + ' leaves ' + Math.abs(wait) + ' min before you arrive. Next one after that.';
+    }
+  } else {
+    res.className = 'catch-result red';
+    res.textContent = 'No catchable trains found in the next 2 hours.';
+  }
+  renderDeps(lastDeps);
+}
+
+loadStoredKey();
+loadDepartures();
+setInterval(loadDepartures, 30000);
+</script>
+</body>
+</html>
