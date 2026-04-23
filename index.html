@@ -301,10 +301,11 @@ function buildDemo(){
 }
 
 function buildDemoJourney(dep){
+  var isHC=dir==='hc';
   var sHC=[
-    {n:'Helsingborg C',t:'4a'},{n:'Ramlösa',t:'1'},{n:'Landskrona',t:'1'},
+    {n:'Helsingborg C',t:'4a'},{n:'Landskrona',t:'1'},
     {n:'Lund C',t:'1'},{n:'Malmö C',t:'1b'},{n:'Triangeln',t:'1'},
-    {n:'Malmö Hyllie',t:'1b'},{n:'Kastrup',t:'1'},{n:'CPH Airport T3',t:''}
+    {n:'Malmö Hyllie',t:'1b'},{n:'CPH Lufthavn',t:'1'}
   ];
   var sCH=[
     {n:'København H',t:'5'},{n:'Ørestad St.',t:'1'},
@@ -312,9 +313,9 @@ function buildDemoJourney(dep){
     {n:'Malmö Hyllie',t:'2b'},{n:'Triangeln',t:'2'},
     {n:'Malmö C',t:'2'},{n:'Lund C',t:'1'},{n:'Helsingborg C',t:'4a'}
   ];
-  var stops=dir==='hc'?sHC:sCH;
-  var originIdx=dir==='hc'?6:3;
-  var currentIdx=dir==='hc'?4:2;
+  var stops=isHC?sHC:sCH;
+  var originIdx=isHC?5:3;
+  var currentIdx=isHC?3:2;
   var depMins=parseMins(dep.time),dly=delayMins(dep.time,dep.rtTime);
   return stops.map(function(s,i){
     var offset=(i-originIdx)*4;
@@ -325,9 +326,10 @@ function buildDemoJourney(dep){
     var am=(pm+stopDly);
     var ah=Math.floor(((am%1440)+1440)%1440/60),amin=((am%1440)+1440)%1440%60;
     var actual=stopDly>0?pad(ah)+':'+pad(amin)+':00':null;
+    var destIdx=isHC?stops.length-1:4;
     return{name:s.n,track:s.t,depTime:planned,rtDepTime:actual,
       passed:i<currentIdx,current:i===currentIdx,
-      isOrigin:i===originIdx,isDest:i===stops.length-1};
+      isOrigin:i===originIdx,isDest:i===destIdx};
   });
 }
 
