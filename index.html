@@ -7,27 +7,27 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Øresundståg">
-<meta name="description" content="Live Øresundståg departures — Hyllie ↔ CPH Airport">
 <title>Øresundståg — Hyllie ↔ CPH</title>
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --blue:#003F87; --blue-light:#EDF4FC;
-  --red:#D32B2E; --red-light:#FCEBEB;
-  --green:#1D9E75; --green-light:#E1F5EE;
-  --amber:#854F0B; --amber-light:#FAEEDA;
-  --gray-50:#F7F8FA; --gray-100:#EAECF0; --gray-300:#C0C4CD;
-  --gray-500:#6B7280; --gray-900:#111827; --white:#fff;
-  --r-sm:8px; --r-md:12px; --r-lg:16px;
-  --font:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
+:root{
+  --blue:#003F87;--blue-light:#EDF4FC;
+  --red:#D32B2E;--red-light:#FCEBEB;
+  --green:#1D9E75;--green-light:#E1F5EE;
+  --amber:#854F0B;--amber-light:#FAEEDA;
+  --gray-50:#F7F8FA;--gray-100:#EAECF0;--gray-300:#C0C4CD;
+  --gray-500:#6B7280;--gray-900:#111827;--white:#fff;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
   --safe-top:env(safe-area-inset-top,0px);
   --safe-bottom:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);min-height:100dvh;padding-bottom:calc(1.5rem + var(--safe-bottom));-webkit-font-smoothing:antialiased}
 
-.header{background:var(--blue);padding:calc(1rem + var(--safe-top)) 1rem 1rem;position:sticky;top:0;z-index:10}
+/* HEADER */
+.header{background:var(--blue);padding:calc(1rem + var(--safe-top)) 1rem 0;position:sticky;top:0;z-index:10}
 .header-inner{display:flex;align-items:center;justify-content:space-between;max-width:480px;margin:0 auto}
 .header-left{display:flex;align-items:center;gap:10px}
 .train-icon{width:38px;height:38px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center}
@@ -40,16 +40,29 @@ body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);min
 .live-dot.err{background:#f87171}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
+/* TAB NAV */
+.tab-nav{display:grid;grid-template-columns:1fr 1fr;background:rgba(255,255,255,.12);border-radius:10px;padding:3px;margin:10px auto 0;max-width:480px}
+.tab-btn{padding:8px;border-radius:8px;border:none;background:transparent;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:500;color:rgba(255,255,255,.7);-webkit-appearance:none;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s}
+.tab-btn.active{background:white;color:var(--blue)}
+.tab-btn svg{width:13px;height:13px;fill:rgba(255,255,255,.7);flex-shrink:0}
+.tab-btn.active svg{fill:var(--blue)}
+.tab-spacer{height:12px}
+
+/* MAIN */
 .main{max-width:480px;margin:0 auto;padding:1rem;display:flex;flex-direction:column;gap:12px}
+.tab-pane{display:none;flex-direction:column;gap:12px}
+.tab-pane.active{display:flex}
 .card{background:var(--white);border-radius:var(--r-md);border:1px solid var(--gray-100);padding:14px 16px}
 
+/* DIR */
 .dir-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.dir-btn{padding:12px 14px;border-radius:var(--r-md);border:1.5px solid var(--gray-100);background:var(--white);cursor:pointer;font-family:var(--font);text-align:left;transition:all .15s;-webkit-appearance:none}
+.dir-btn{padding:12px 14px;border-radius:var(--r-md);border:1.5px solid var(--gray-100);background:var(--white);cursor:pointer;font-family:var(--font);text-align:left;-webkit-appearance:none;transition:all .15s}
 .dir-btn.active{border-color:var(--blue);background:var(--blue-light)}
 .dir-btn-main{font-size:13px;font-weight:500;color:var(--gray-500)}
 .dir-btn.active .dir-btn-main{color:var(--blue)}
 .dir-btn-sub{font-size:11px;color:var(--gray-300);margin-top:2px}
 
+/* CATCH */
 .catch-title{font-size:12px;font-weight:500;color:var(--gray-500);display:flex;align-items:center;gap:6px;margin-bottom:12px}
 .catch-title svg{width:14px;height:14px;fill:var(--blue)}
 .catch-row{display:flex;align-items:center;gap:10px}
@@ -61,6 +74,7 @@ body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);min
 .catch-result.amber{background:var(--amber-light);color:var(--amber)}
 .catch-result.red{background:var(--red-light);color:#791F1F}
 
+/* ALERTS */
 .alert-banner{border-radius:var(--r-sm);padding:10px 14px;font-size:13px;line-height:1.5;display:none;gap:10px;align-items:flex-start}
 .alert-banner.show{display:flex}
 .alert-banner.cancelled{background:var(--red-light);color:#791F1F;border:1px solid #F09595}
@@ -71,21 +85,18 @@ body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);min
 
 .section-label{font-size:11px;font-weight:500;color:var(--gray-300);letter-spacing:.05em;text-transform:uppercase;margin-bottom:-4px}
 
+/* DEP CARDS */
 .dep-list{display:flex;flex-direction:column;gap:8px}
-
-/* card wrapper — handles all border states */
-.dep-wrap{background:var(--white);border-radius:var(--r-md);border:1px solid var(--gray-100);overflow:hidden;transition:border-color .15s}
+.dep-wrap{background:var(--white);border-radius:var(--r-md);border:1px solid var(--gray-100);overflow:hidden}
 .dep-wrap.is-next{border:2px solid var(--blue)}
 .dep-wrap.is-delayed{border-left:3px solid var(--red);border-radius:0 var(--r-md) var(--r-md) 0}
 .dep-wrap.is-cancelled{opacity:.6;background:var(--red-light);border-left:3px solid var(--red);border-radius:0 var(--r-md) var(--r-md) 0}
 .dep-wrap.catchable{border-color:var(--green)}
 .dep-wrap.expanded{border-color:var(--blue)}
-
 .dep-card{padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
 .dep-chevron{margin-left:4px;flex-shrink:0;transition:transform .25s}
 .dep-chevron svg{width:16px;height:16px;display:block}
 .dep-wrap.expanded .dep-chevron{transform:rotate(180deg)}
-
 .line-badge{width:36px;height:36px;border-radius:9px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:white;flex-shrink:0;font-family:var(--mono)}
 .line-badge.red{background:var(--red)}
 .dep-mid{flex:1;min-width:0}
@@ -113,8 +124,6 @@ body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);min
 .journey-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .journey-title{font-size:11px;font-weight:500;color:var(--gray-500);text-transform:uppercase;letter-spacing:.04em}
 .journey-name{font-size:12px;font-weight:500;color:var(--blue)}
-
-/* STOP ROWS — Skånetrafiken style */
 .stop-list{display:flex;flex-direction:column}
 .stop-row{display:flex;align-items:stretch;min-height:48px}
 .stop-line-col{width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center}
@@ -138,6 +147,32 @@ body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);min
 .s-planned.struck{text-decoration:line-through;color:var(--gray-300);font-size:11px}
 .s-actual{font-size:13px;font-family:var(--mono);font-weight:500;color:var(--red)}
 .s-cur{font-size:10px;color:var(--blue);font-weight:500;margin-top:1px}
+
+/* DELAY LOG TAB */
+.log-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat-tile{background:var(--white);border:1px solid var(--gray-100);border-radius:var(--r-md);padding:12px;text-align:center}
+.stat-val{font-size:22px;font-weight:500;color:var(--gray-900);font-family:var(--mono)}
+.stat-val.red{color:var(--red)}
+.stat-lbl{font-size:11px;color:var(--gray-300);margin-top:3px}
+.log-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.log-filter-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--gray-100);background:var(--white);font-size:12px;font-weight:500;color:var(--gray-500);cursor:pointer;font-family:var(--font);-webkit-appearance:none;transition:all .15s}
+.log-filter-btn.active{background:var(--blue);border-color:var(--blue);color:white}
+.log-clear-btn{margin-left:auto;font-size:12px;color:var(--gray-300);background:none;border:none;cursor:pointer;font-family:var(--font);padding:4px 0}
+.log-list{display:flex;flex-direction:column;gap:6px}
+.log-date-group{font-size:11px;font-weight:500;color:var(--gray-300);letter-spacing:.04em;text-transform:uppercase;padding:8px 2px 2px}
+.log-card{background:var(--white);border:1px solid var(--gray-100);border-radius:var(--r-md);padding:11px 13px;display:flex;align-items:center;gap:12px}
+.log-badge{width:44px;height:44px;border-radius:9px;background:var(--red-light);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.log-badge-num{font-size:16px;font-weight:500;color:var(--red);font-family:var(--mono);line-height:1}
+.log-badge-unit{font-size:9px;color:var(--red);font-weight:500;margin-top:1px}
+.log-mid{flex:1;min-width:0}
+.log-route{font-size:13px;font-weight:500;color:var(--gray-900)}
+.log-meta{font-size:11px;color:var(--gray-500);margin-top:2px}
+.log-right{text-align:right;flex-shrink:0}
+.log-planned{font-size:11px;color:var(--gray-300);text-decoration:line-through;font-family:var(--mono)}
+.log-actual{font-size:14px;font-weight:500;color:var(--red);font-family:var(--mono);margin-top:1px}
+.log-empty{text-align:center;padding:2.5rem 1rem;color:var(--gray-300);font-size:13px;line-height:1.8}
+.log-empty-icon{font-size:36px;margin-bottom:8px}
+.log-note{font-size:11px;color:var(--gray-300);line-height:1.5}
 
 /* API */
 .api-section{display:flex;flex-direction:column;gap:8px}
@@ -173,68 +208,110 @@ body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);min
       <span id="liveLabel">Demo</span>
     </div>
   </div>
+  <div class="tab-nav">
+    <button class="tab-btn active" id="tab-dep" onclick="switchTab('dep')">
+      <svg viewBox="0 0 24 24"><path d="M4 16c0 1.1.9 2 2 2h1l-1 3h2l1-3h6l1 3h2l-1-3h1c1.1 0 2-.9 2-2V6c0-3-3.5-4-9-4S4 3 4 6v10z"/></svg>
+      Departures
+    </button>
+    <button class="tab-btn" id="tab-log" onclick="switchTab('log')">
+      <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+      Delay Log
+    </button>
+  </div>
+  <div class="tab-spacer"></div>
 </div>
 
 <div class="main">
 
-  <div class="api-section card">
-    <div id="apiStatus"></div>
-    <div class="api-row" id="apiRow">
-      <input class="api-input" type="text" id="apiKeyInput" placeholder="Paste Rejseplanen accessId..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-      <button class="api-btn" onclick="saveKey()">Save</button>
+  <!-- DEPARTURES TAB -->
+  <div class="tab-pane active" id="pane-dep">
+
+    <div class="api-section card">
+      <div id="apiStatus"></div>
+      <div class="api-row" id="apiRow">
+        <input class="api-input" type="text" id="apiKeyInput" placeholder="Paste Rejseplanen accessId..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <button class="api-btn" onclick="saveKey()">Save</button>
+      </div>
+      <div class="api-hint">Free key at <a href="https://labs.rejseplanen.dk" target="_blank">labs.rejseplanen.dk</a> — saved locally on your device.</div>
     </div>
-    <div class="api-hint">Free key at <a href="https://labs.rejseplanen.dk" target="_blank">labs.rejseplanen.dk</a> — saved locally on your device.</div>
-  </div>
 
-  <div class="dir-toggle">
-    <button class="dir-btn active" id="btn-hc" onclick="setDir('hc')">
-      <div class="dir-btn-main">→ Hyllie → CPH</div>
-      <div class="dir-btn-sub">To Airport T3</div>
-    </button>
-    <button class="dir-btn" id="btn-ch" onclick="setDir('ch')">
-      <div class="dir-btn-main">← CPH → Hyllie</div>
-      <div class="dir-btn-sub">To Malmö Hyllie</div>
-    </button>
-  </div>
-
-  <div class="card">
-    <div class="catch-title">
-      <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-      Can I catch it?
+    <div class="dir-toggle">
+      <button class="dir-btn active" id="btn-hc" onclick="setDir('hc')">
+        <div class="dir-btn-main">→ Hyllie → CPH</div>
+        <div class="dir-btn-sub">To Airport T3</div>
+      </button>
+      <button class="dir-btn" id="btn-ch" onclick="setDir('ch')">
+        <div class="dir-btn-main">← CPH → Hyllie</div>
+        <div class="dir-btn-sub">To Malmö Hyllie</div>
+      </button>
     </div>
-    <div class="catch-row">
-      <span class="catch-label">I am</span>
-      <input type="range" min="1" max="30" value="8" step="1" class="catch-slider" id="walkSlider" oninput="updateCatch()">
-      <span class="catch-val"><span id="walkVal">8</span> min away</span>
+
+    <div class="card">
+      <div class="catch-title">
+        <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+        Can I catch it?
+      </div>
+      <div class="catch-row">
+        <span class="catch-label">I am</span>
+        <input type="range" min="1" max="30" value="8" step="1" class="catch-slider" id="walkSlider" oninput="updateCatch()">
+        <span class="catch-val"><span id="walkVal">8</span> min away</span>
+      </div>
+      <div class="catch-result green" id="catchResult">Checking...</div>
     </div>
-    <div class="catch-result green" id="catchResult">Checking...</div>
-  </div>
 
-  <div class="alert-banner" id="alertBanner">
-    <span style="font-size:15px;flex-shrink:0">⚠</span>
-    <span id="alertText"></span>
-  </div>
+    <div class="alert-banner" id="alertBanner">
+      <span style="font-size:15px;flex-shrink:0">⚠</span>
+      <span id="alertText"></span>
+    </div>
 
-  <div class="border-note" id="borderNote">
-    <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
-    <span>Border control at Hyllie (Sweden-bound): scheduled 5-6 min stop. Not a delay — have your ID ready.</span>
-  </div>
+    <div class="border-note" id="borderNote">
+      <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+      <span>Border control at Hyllie (Sweden-bound): scheduled 5-6 min stop. Not a delay — have your ID ready.</span>
+    </div>
 
-  <div class="section-label">Next departures — tap for live journey</div>
-  <div class="dep-list" id="depList">
-    <div class="spinner">Loading departures...</div>
-  </div>
+    <div class="section-label">Next departures — tap for live journey</div>
+    <div class="dep-list" id="depList">
+      <div class="spinner">Loading departures...</div>
+    </div>
 
-  <div class="footer">
-    <span class="upd" id="updTxt"></span>
-    <button class="ref-btn" onclick="loadDepartures()">Refresh ↻</button>
-  </div>
+    <div class="footer">
+      <span class="upd" id="updTxt"></span>
+      <button class="ref-btn" onclick="loadDepartures()">Refresh ↻</button>
+    </div>
 
-</div>
+  </div><!-- end dep tab -->
+
+  <!-- DELAY LOG TAB -->
+  <div class="tab-pane" id="pane-log">
+
+    <div class="log-stats" id="logStats">
+      <div class="stat-tile"><div class="stat-val red" id="statTotal">0</div><div class="stat-lbl">Total delays</div></div>
+      <div class="stat-tile"><div class="stat-val red" id="statAvg">—</div><div class="stat-lbl">Avg delay</div></div>
+      <div class="stat-tile"><div class="stat-val red" id="statWorst">—</div><div class="stat-lbl">Worst delay</div></div>
+    </div>
+
+    <div class="log-controls">
+      <button class="log-filter-btn active" id="lf-all" onclick="setLogFilter('all')">All</button>
+      <button class="log-filter-btn" id="lf-hc" onclick="setLogFilter('hc')">→ CPH</button>
+      <button class="log-filter-btn" id="lf-ch" onclick="setLogFilter('ch')">← Hyllie</button>
+      <button class="log-clear-btn" onclick="clearLog()">Clear all</button>
+    </div>
+
+    <div class="log-list" id="logList"></div>
+
+    <div class="log-note">Delays of 25 min or more are logged automatically when the app is open and connected to live data. Records are kept for 30 days.</div>
+
+  </div><!-- end log tab -->
+
+</div><!-- end main -->
 
 <script>
 var dir='hc', apiKey='', lastDeps=[], expandedIdx=null, journeyCache={};
+var logFilter='all';
 var ORIGIN={hc:'8600626',ch:'8600645'};
+var DELAY_THRESHOLD=25;
+var THIRTY_DAYS=30*24*60*60*1000;
+var seenDelays={};
 
 function pad(n){return String(n).padStart(2,'0')}
 function nowStr(){var d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())}
@@ -251,7 +328,27 @@ function delayMins(planned,actual){
   if(a===null||b===null)return 0;
   var d=a-b;if(d<-60)d+=1440;return Math.max(0,d);
 }
+function fmtDate(ts){
+  var d=new Date(ts);
+  return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear();
+}
+function fmtDateGroup(ts){
+  var d=new Date(ts);
+  var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()];
+}
 
+/* ---- TAB ---- */
+function switchTab(t){
+  document.getElementById('pane-dep').className='tab-pane'+(t==='dep'?' active':'');
+  document.getElementById('pane-log').className='tab-pane'+(t==='log'?' active':'');
+  document.getElementById('tab-dep').className='tab-btn'+(t==='dep'?' active':'');
+  document.getElementById('tab-log').className='tab-btn'+(t==='log'?' active':'');
+  if(t==='log')renderLog();
+}
+
+/* ---- API KEY ---- */
 function loadStoredKey(){
   try{var k=localStorage.getItem('rp_api_key');if(k){apiKey=k;showKeySaved();}}catch(e){}
 }
@@ -273,6 +370,120 @@ function showKeySaved(){
   document.getElementById('apiRow').style.display='none';
 }
 
+/* ---- DELAY LOG ---- */
+function loadLog(){
+  try{var raw=localStorage.getItem('delay_log');return raw?JSON.parse(raw):[];}catch(e){return [];}
+}
+function saveLog(entries){
+  try{localStorage.setItem('delay_log',JSON.stringify(entries));}catch(e){}
+}
+function pruneLog(){
+  var entries=loadLog();
+  var cutoff=Date.now()-THIRTY_DAYS;
+  var pruned=entries.filter(function(e){return e.ts>cutoff;});
+  if(pruned.length!==entries.length)saveLog(pruned);
+  return pruned;
+}
+function recordDelay(dep,dlyMins){
+  var key=dep.time+'_'+dir;
+  if(seenDelays[key])return;
+  seenDelays[key]=true;
+  var entries=loadLog();
+  entries.unshift({
+    ts:Date.now(),
+    dir:dir,
+    planned:fmtTm(dep.time),
+    actual:fmtTm(dep.rtTime),
+    delay:dlyMins,
+    towards:dep.direction,
+    cancelled:!!dep.cancelled
+  });
+  var cutoff=Date.now()-THIRTY_DAYS;
+  entries=entries.filter(function(e){return e.ts>cutoff;});
+  saveLog(entries);
+}
+function checkAndLogDelays(deps){
+  deps.forEach(function(d){
+    var dly=delayMins(d.time,d.rtTime);
+    if(dly>=DELAY_THRESHOLD){recordDelay(d,dly);}
+    if(d.cancelled){
+      var key='cancel_'+d.time+'_'+dir;
+      if(!seenDelays[key]){
+        seenDelays[key]=true;
+        var entries=loadLog();
+        entries.unshift({ts:Date.now(),dir:dir,planned:fmtTm(d.time),actual:'—',delay:0,towards:d.direction,cancelled:true});
+        saveLog(entries);
+      }
+    }
+  });
+}
+function setLogFilter(f){
+  logFilter=f;
+  ['all','hc','ch'].forEach(function(x){
+    document.getElementById('lf-'+x).className='log-filter-btn'+(f===x?' active':'');
+  });
+  renderLog();
+}
+function clearLog(){
+  if(!confirm('Clear all delay records?'))return;
+  saveLog([]);seenDelays={};renderLog();
+}
+function renderLog(){
+  var entries=pruneLog();
+  var filtered=logFilter==='all'?entries:entries.filter(function(e){return e.dir===logFilter;});
+
+  // stats
+  var delays=filtered.filter(function(e){return !e.cancelled&&e.delay>0;});
+  document.getElementById('statTotal').textContent=filtered.length;
+  if(delays.length){
+    var avg=Math.round(delays.reduce(function(s,e){return s+e.delay;},0)/delays.length);
+    var worst=Math.max.apply(null,delays.map(function(e){return e.delay;}));
+    document.getElementById('statAvg').textContent=avg+' min';
+    document.getElementById('statWorst').textContent=worst+' min';
+  } else {
+    document.getElementById('statAvg').textContent='—';
+    document.getElementById('statWorst').textContent='—';
+  }
+
+  var list=document.getElementById('logList');
+  if(!filtered.length){
+    list.innerHTML='<div class="log-empty"><div class="log-empty-icon">✅</div>No delays of 25+ min recorded yet.<br>Records appear here automatically when the app detects a big delay.</div>';
+    return;
+  }
+
+  // group by date
+  var groups={},groupOrder=[];
+  filtered.forEach(function(e){
+    var dk=fmtDate(e.ts);
+    if(!groups[dk]){groups[dk]=[];groupOrder.push({key:dk,ts:e.ts});}
+    groups[dk].push(e);
+  });
+
+  var html='';
+  groupOrder.forEach(function(g){
+    html+='<div class="log-date-group">'+fmtDateGroup(g.ts)+'</div>';
+    groups[g.key].forEach(function(e){
+      var dirLabel=e.dir==='hc'?'Hyllie → CPH':'CPH → Hyllie';
+      var badgeHtml=e.cancelled
+        ?'<div class="log-badge" style="background:#fce8e8"><div class="log-badge-num" style="font-size:12px;color:var(--red)">CAN</div><div class="log-badge-unit">CELLED</div></div>'
+        :'<div class="log-badge"><div class="log-badge-num">+'+e.delay+'</div><div class="log-badge-unit">MIN</div></div>';
+      html+='<div class="log-card">'+
+        badgeHtml+
+        '<div class="log-mid">'+
+          '<div class="log-route">'+dirLabel+'</div>'+
+          '<div class="log-meta">→ '+e.towards+'</div>'+
+        '</div>'+
+        '<div class="log-right">'+
+          '<div class="log-planned">'+e.planned+'</div>'+
+          '<div class="log-actual">'+(e.cancelled?'Cancelled':e.actual)+'</div>'+
+        '</div>'+
+      '</div>';
+    });
+  });
+  list.innerHTML=html;
+}
+
+/* ---- DIR ---- */
 function setDir(d){
   dir=d;expandedIdx=null;journeyCache={};
   document.getElementById('btn-hc').className='dir-btn'+(d==='hc'?' active':'');
@@ -285,10 +496,10 @@ function isOresund(dep){
   return n.indexOf('resund')>-1||dep.type==='REG'||dep.type==='IC'||dep.type==='ICE';
 }
 
-/* ---- DEMO DATA ---- */
+/* ---- DEMO ---- */
 function buildDemo(){
   var n=new Date(),base=n.getHours()*60+n.getMinutes();
-  var dHC=['København H','København Lufthavn','Helsingør','København H','København Lufthavn'];
+  var dHC=['København H','CPH Lufthavn','Helsingør','København H','CPH Lufthavn'];
   var dCH=['Malmö Hyllie','Göteborg C','Malmö Hyllie','Göteborg C','Malmö Hyllie'];
   var delays=[0,0,7,0,0],tracks=['2','1','2','1','2'],out=[];
   for(var i=0;i<5;i++){
@@ -317,16 +528,16 @@ function buildDemoJourney(dep){
   var originIdx=isHC?6:3;
   var currentIdx=isHC?4:2;
   var depMins=parseMins(dep.time),dly=delayMins(dep.time,dep.rtTime);
+  var destIdx=isHC?stops.length-1:4;
   return stops.map(function(s,i){
     var offset=(i-originIdx)*4;
     var pm=depMins+offset;
     var ph=Math.floor(((pm%1440)+1440)%1440/60),pmin=((pm%1440)+1440)%1440%60;
     var planned=pad(ph)+':'+pad(pmin)+':00';
     var stopDly=i>=currentIdx?dly:0;
-    var am=(pm+stopDly);
+    var am=pm+stopDly;
     var ah=Math.floor(((am%1440)+1440)%1440/60),amin=((am%1440)+1440)%1440%60;
     var actual=stopDly>0?pad(ah)+':'+pad(amin)+':00':null;
-    var destIdx=isHC?stops.length-1:4;
     return{name:s.n,track:s.t,depTime:planned,rtDepTime:actual,
       passed:i<currentIdx,current:i===currentIdx,
       isOrigin:i===originIdx,isDest:i===destIdx};
@@ -351,7 +562,7 @@ async function loadDepartures(){
   }
   if(!isLive)deps=buildDemo();
   var dot=document.getElementById('liveDot'),lbl=document.getElementById('liveLabel');
-  if(isLive){dot.className='live-dot on';lbl.textContent='Live';}
+  if(isLive){dot.className='live-dot on';lbl.textContent='Live';checkAndLogDelays(deps);}
   else if(apiKey){dot.className='live-dot err';lbl.textContent='Error';}
   else{dot.className='live-dot';lbl.textContent='Demo';}
   document.getElementById('updTxt').textContent='Updated '+nowStr();
@@ -359,7 +570,7 @@ async function loadDepartures(){
   checkAlerts(deps);renderDeps(deps);updateCatch();
 }
 
-/* ---- JOURNEY DETAIL ---- */
+/* ---- JOURNEY ---- */
 async function fetchJourney(dep,idx){
   var panel=document.getElementById('jp-'+idx);if(!panel)return;
   if(journeyCache[idx]){renderJourney(panel,journeyCache[idx],dep);return;}
@@ -375,8 +586,7 @@ async function fetchJourney(dep,idx){
     var jd=data.JourneyDetail||data;
     var raw=jd.Stops&&jd.Stops.Stop||jd.Stop||[];
     if(!Array.isArray(raw))raw=[raw];
-    var now=new Date(),nowM=now.getHours()*60+now.getMinutes();
-    var foundCurrent=false;
+    var now=new Date(),nowM=now.getHours()*60+now.getMinutes(),foundCurrent=false;
     var parsed=raw.map(function(s,i){
       var dt=s.depTime||s.time||'',rt=s.rtDepTime||s.rtTime||null;
       var at=s.arrTime||dt,rta=s.rtArrTime||rt;
@@ -419,7 +629,7 @@ function renderJourney(panel,stops,dep){
   h+='</div>';panel.innerHTML=h;
 }
 
-/* ---- TOGGLE EXPAND ---- */
+/* ---- EXPAND ---- */
 function toggleExpand(idx){
   var was=expandedIdx===idx;
   document.querySelectorAll('.dep-wrap').forEach(function(w){w.classList.remove('expanded');});
@@ -472,7 +682,6 @@ function renderDeps(deps){
     }
     var trk=d.track?'<div class="dep-track">Track '+d.track+'</div>':'';
     var bc='line-badge'+(isCan?' red':'');
-    var panInner=isExp&&journeyCache[i]?'loading':'';
     html+='<div class="'+wc+'" id="dw-'+i+'">'+
       '<div class="dep-card" onclick="toggleExpand('+i+')">'+
         '<div class="'+bc+'">Ø</div>'+
