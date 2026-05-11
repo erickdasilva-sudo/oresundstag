@@ -495,13 +495,21 @@ function setDir(d){
   loadDepartures();
 }
 function isOresund(dep){
-  // At Hyllie and CPH Lufthavn, all train departures are Øresundståg or regional trains on this route
-  // Accept all tog types: REG, IC, ICE, and name matches
-  var n=(dep.name||'').toLowerCase();
-  var t=(dep.type||'').toUpperCase();
-  // Exclude obvious non-matches like S-tog (only at CPH side)
-  if(n.indexOf('s-tog')>-1||n.indexOf('stog')>-1)return false;
-  return true; // all trains at these stations are relevant
+  var dest=(dep.direction||dep.direction||'').toLowerCase();
+  var name=(dep.name||'').toLowerCase();
+  // Exclude S-tog and Metro
+  if(name.indexOf('s-tog')>-1||name.indexOf('metro')>-1)return false;
+  // From Hyllie (hc): trains must be heading towards Denmark/CPH side
+  if(dir==='hc'){
+    var cphTerms=['københavn','lufthavn','cph','kastrup','helsingør','helsingborg','odense','aarhus','aalborg','fredericia','esbjerg','roskilde','ørestad','tårnby','østerport','nørreport'];
+    return cphTerms.some(function(t){return dest.indexOf(t)>-1;});
+  }
+  // From CPH (ch): trains must be heading towards Sweden/Hyllie side
+  if(dir==='ch'){
+    var sweTerms=['hyllie','malmö','malmø','göteborg','gothenburg','helsingborg','lund','kristianstad','kalmar','stockholm','triangeln','halmstad','varberg','ängelholm','landskrona'];
+    return sweTerms.some(function(t){return dest.indexOf(t)>-1;});
+  }
+  return false;
 }
 
 /* ---- DEMO ---- */
