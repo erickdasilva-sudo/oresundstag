@@ -495,8 +495,13 @@ function setDir(d){
   loadDepartures();
 }
 function isOresund(dep){
+  // At Hyllie and CPH Lufthavn, all train departures are Øresundståg or regional trains on this route
+  // Accept all tog types: REG, IC, ICE, and name matches
   var n=(dep.name||'').toLowerCase();
-  return n.indexOf('resund')>-1||dep.type==='REG'||dep.type==='IC'||dep.type==='ICE';
+  var t=(dep.type||'').toUpperCase();
+  // Exclude obvious non-matches like S-tog (only at CPH side)
+  if(n.indexOf('s-tog')>-1||n.indexOf('stog')>-1)return false;
+  return true; // all trains at these stations are relevant
 }
 
 /* ---- DEMO ---- */
@@ -552,14 +557,14 @@ async function loadDepartures(){
   document.getElementById('depList').innerHTML='<div class="spinner">Fetching departures...</div>';
   var deps=[],isLive=false;
   if(apiKey){
-    var url='https://www.rejseplanen.dk/api/departureBoard?accessId='+apiKey+'&format=json&id='+ORIGIN[dir]+'&duration=120&maxJourneys=30&useTog=1&useBus=0&useMetro=0';
+    var url='https://www.rejseplanen.dk/api/departureBoard?accessId='+apiKey+'&format=json&id='+ORIGIN[dir]+'&duration=180&maxJourneys=50&useTog=1&useBus=0&useMetro=0';
     try{
       var resp=await fetch(url);
       if(resp.ok){
         var data=await resp.json();
         var raw=data.Departure||(data.DepartureBoard&&data.DepartureBoard.Departure)||[];
         if(!Array.isArray(raw))raw=[raw];
-        deps=raw.filter(isOresund).slice(0,6);isLive=true;
+        deps=raw.filter(isOresund).slice(0,10);isLive=true;
       }
     }catch(e){}
   }
