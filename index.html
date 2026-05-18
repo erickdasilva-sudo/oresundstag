@@ -96,6 +96,34 @@
   .empty{padding:60px 20px;text-align:center;color:var(--muted)}
   .empty svg{width:42px;height:42px;opacity:.4;margin-bottom:12px}
 
+  /* EXPAND / TIMELINE */
+  .dep{cursor:pointer}
+  .dep .chev{display:inline-block;margin-left:6px;color:var(--dim);transition:transform .2s;font-family:var(--mono);font-size:11px}
+  .dep.open .chev{transform:rotate(180deg);color:var(--brand)}
+  .dep.open{background:var(--panel-2)}
+  .stops{display:none;padding:6px 20px 18px 20px;border-bottom:1px solid var(--border);background:var(--bg-2)}
+  .stops.open{display:block}
+  .stops .head{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 12px}
+  .timeline{position:relative;padding-left:28px}
+  .timeline::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:var(--border-2);border-radius:2px}
+  .stop{position:relative;display:grid;grid-template-columns:62px 1fr auto;gap:12px;padding:8px 0;align-items:center}
+  .stop::before{content:"";position:absolute;left:-24px;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--border-2);box-sizing:border-box}
+  .stop.past::before{background:var(--green);border-color:var(--green)}
+  .stop.now::before{background:var(--brand);border-color:var(--brand);box-shadow:0 0 0 5px rgba(0,180,255,.25);animation:blink 1s infinite}
+  .stop.now{background:rgba(0,180,255,.08);border-radius:8px;padding-left:6px;padding-right:6px;margin-left:-6px}
+  @keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 5px rgba(0,180,255,.35)}50%{opacity:.55;box-shadow:0 0 0 10px rgba(0,180,255,0)}}
+  .stop .t{font-family:var(--mono);font-size:12px;color:var(--muted);line-height:1.35}
+  .stop .t .rt{color:var(--orange);display:block}
+  .stop .t .rt.ok{color:var(--green)}
+  .stop .nm{font-size:14px;font-weight:500;color:var(--text)}
+  .stop.now .nm{color:var(--brand);font-weight:600}
+  .stop .tr{font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .stop .tr b{color:var(--muted);font-weight:600}
+  .now-pill{display:inline-block;margin-left:8px;font-family:var(--mono);font-size:10px;font-weight:600;color:#fff;background:var(--brand);padding:2px 7px;border-radius:999px;letter-spacing:.05em;animation:blink 1s infinite}
+  .tl-status{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:10px}
+  .tl-status .pending{color:var(--accent)}
+  .tl-status .done{color:var(--green)}
+
   /* SIDEBAR */
   .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:18px 20px}
   .stat{background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:14px}
@@ -220,7 +248,7 @@
   </div>
 
   <div class="footer">
-    Data: <a href="https://www.trafiklab.se/" target="_blank" rel="noopener">Trafiklab ResRobot v2.1</a> · Updates every 30 s · Built for GitHub Pages
+    Data: <a href="https://www.trafiklab.se/" target="_blank" rel="noopener">Trafiklab ResRobot v2.1</a> · Updates every 10 s · Built for GitHub Pages
   </div>
 </div>
 
@@ -232,9 +260,14 @@
     cph: { id:'860000858', name:'CPH Airport' },
     hyl: { id:'740001586', name:'Hyllie St.' }
   };
+  // Wider endpoints used to fetch the full Øresundståg stop list per train
+  const FULL = {
+    dk: { id:'860000626', name:'København H' },      // Copenhagen Central
+    se: { id:'740000003', name:'Malmö C' }            // Malmö Central
+  };
   const STORE = 'oresundstag.delays.v1';
   const THRESHOLD = 20;
-  const POLL_MS = 30000;
+  const POLL_MS = 10000;
 
   let direction = 'cph-hyl'; // origin first
   let timer = null;
@@ -278,13 +311,41 @@
     const [a,b] = direction.split('-');
     const o = a==='cph'?STOPS.cph:STOPS.hyl;
     const d = b==='hyl'?STOPS.hyl:STOPS.cph;
-    const url = `${API}/trip?originExtId=${o.id}&destExtId=${d.id}&accessId=${KEY}&format=json&numF=6&passlist=0`;
+    const url = `${API}/trip?originExtId=${o.id}&destExtId=${d.id}&accessId=${KEY}&format=json&numF=6&passlist=1&showPassingPoints=0`;
     const r = await fetch(url);
     if (!r.ok) throw new Error('HTTP '+r.status);
     const json = await r.json();
     if (json.errorCode) throw new Error(json.errorText || json.errorCode);
     return json;
   };
+
+  // Fetch the broader CPH H ↔ Malmö C journey so we get every intermediate
+  // stop on each Øresundståg train. We then match by train number/name.
+  const fetchFullJourneys = async () => {
+    const [a] = direction.split('-');
+    const o = a==='cph' ? FULL.dk : FULL.se;
+    const d = a==='cph' ? FULL.se : FULL.dk;
+    const url = `${API}/trip?originExtId=${o.id}&destExtId=${d.id}&accessId=${KEY}&format=json&numF=6&passlist=1&showPassingPoints=0`;
+    try {
+      const r = await fetch(url);
+      if (!r.ok) return [];
+      const json = await r.json();
+      return json.Trip || [];
+    } catch { return []; }
+  };
+
+  // Build a map: train name (e.g. "Regional Tåg 1064") -> Stops[]
+  const buildStopIndex = (trips) => {
+    const m = new Map();
+    trips.forEach(t => {
+      (t.LegList?.Leg||[]).filter(l=>l.type==='JNY').forEach(leg => {
+        const stops = leg.Stops?.Stop || [];
+        if (stops.length >= 2) m.set((leg.name||'').trim(), stops);
+      });
+    });
+    return m;
+  };
+  let stopIndex = new Map();
 
   // ---------- render ----------
   const fmtTime = (t) => t ? t.slice(0,5) : '—';
@@ -304,7 +365,7 @@
     const fromName = (a==='cph'?STOPS.cph:STOPS.hyl).name;
     const toName   = (b==='hyl'?STOPS.hyl:STOPS.cph).name;
 
-    const rows = trips.map(trip => {
+    const rows = trips.map((trip, idx) => {
       const legs = (trip.LegList?.Leg || []).filter(l => l.type==='JNY');
       if (!legs.length) return '';
       const leg = legs[0];
@@ -336,8 +397,10 @@
       const rTrack = O.rtTrack;
       const trackHTML = sTrack ? `<div class="track">Track <b>${rTrack||sTrack}</b></div>` : '';
 
+      const fullStops = stopIndex.get((leg.name||'').trim());
+      const stopsHTML = renderStops(leg, fullStops);
       return `
-        <div class="dep">
+        <div class="dep" data-idx="${idx}">
           <div class="dep-time">
             <div class="sched ${O.rtTime && !cancelled ? 'struck':''}">${fmtTime(O.time)}</div>
             ${O.rtTime && (delay>0||cancelled) ? `<div class="real ${cancelled?'cancel':''}">${fmtTime(O.rtTime)}</div>`:''}
@@ -347,16 +410,81 @@
               <span class="badge">${(leg.name||'').split(' ')[0]||'TRAIN'}</span>
               <span class="train-no">${leg.name||''}</span>
             </div>
-            <div class="dir">${fromName} → ${toName}</div>
+            <div class="dir">${fromName} → ${toName} <span class="chev">▾</span></div>
             <div class="sub">Arr ${fmtTime(D.rtTime||D.time)} · ${D.name}</div>
           </div>
           <div class="dep-right">
             <div class="delay ${delayCls}">${delayTxt}</div>
             ${trackHTML}
           </div>
-        </div>`;
+        </div>
+        <div class="stops" data-stops="${idx}">${stopsHTML}</div>`;
     }).join('');
     el.innerHTML = rows || '<div class="empty">No upcoming trains found.</div>';
+    el.querySelectorAll('.dep').forEach(row => {
+      row.addEventListener('click', () => {
+        const idx = row.dataset.idx;
+        const panel = el.querySelector(`.stops[data-stops="${idx}"]`);
+        const isOpen = row.classList.toggle('open');
+        if (panel) panel.classList.toggle('open', isOpen);
+      });
+    });
+  };
+
+  const renderStops = (leg, fullStops) => {
+    const stops = (fullStops && fullStops.length >= 2) ? fullStops : (leg.Stops?.Stop || []);
+    if (!stops.length) return '<div class="head">No stop list available.</div>';
+    const now = Date.now();
+    // Determine current position
+    const parsed = stops.map(s => {
+      const arr = parseDT(s.rtArrDate||s.arrDate||s.rtDepDate||s.depDate, s.rtArrTime||s.arrTime);
+      const dep = parseDT(s.rtDepDate||s.depDate||s.rtArrDate||s.arrDate, s.rtDepTime||s.depTime);
+      return { s, arr, dep, t: dep||arr };
+    });
+    let nowIdx = -1;
+    // train is "at" stop i if now >= arr[i] and now < dep[i+1] (or hasn't reached next)
+    for (let i=0;i<parsed.length;i++){
+      const cur = parsed[i];
+      const next = parsed[i+1];
+      const arrived = cur.arr ? now >= cur.arr.getTime() : (cur.dep ? now >= cur.dep.getTime() : false);
+      const leftForNext = next && next.arr ? now >= next.arr.getTime() : false;
+      if (arrived && !leftForNext) { nowIdx = i; break; }
+    }
+    let statusHTML = '';
+    const firstT = parsed[0].t, lastT = parsed[parsed.length-1].t;
+    if (firstT && now < firstT.getTime()) {
+      const mins = Math.round((firstT.getTime()-now)/60000);
+      statusHTML = `<div class="tl-status"><span class="pending">● Not yet departed</span> · leaves in ${mins} min</div>`;
+    } else if (lastT && now > lastT.getTime()) {
+      statusHTML = `<div class="tl-status"><span class="done">● Journey completed</span></div>`;
+    } else if (nowIdx >= 0) {
+      statusHTML = `<div class="tl-status">Train currently at <b style="color:var(--brand)">${parsed[nowIdx].s.name}</b></div>`;
+    }
+
+    const rows = parsed.map((p, i) => {
+      const s = p.s;
+      const cls = i === nowIdx ? 'now' : (nowIdx >= 0 && i < nowIdx) || (nowIdx < 0 && p.t && now > p.t.getTime()) ? 'past' : '';
+      const schedArr = s.arrTime, schedDep = s.depTime;
+      const rtArr = s.rtArrTime, rtDep = s.rtDepTime;
+      const showSched = schedArr || schedDep;
+      const showRt = rtArr || rtDep;
+      const rtDelay = (() => {
+        if (!rtArr || !schedArr) return 0;
+        const a = parseDT(s.arrDate, schedArr), b = parseDT(s.rtArrDate||s.arrDate, rtArr);
+        return a && b ? diffMin(a,b) : 0;
+      })();
+      const rtCls = rtDelay > 0 ? '' : 'ok';
+      const track = s.rtTrack || s.track;
+      return `<div class="stop ${cls}">
+        <div class="t">
+          <div>${fmtTime(showSched)}</div>
+          ${showRt && showRt !== showSched ? `<div class="rt ${rtCls}">${fmtTime(showRt)}</div>`:''}
+        </div>
+        <div class="nm">${escapeHtml(s.name)}${i===nowIdx?'<span class="now-pill">HERE</span>':''}</div>
+        <div class="tr">${track?`Sp. <b>${track}</b>`:''}</div>
+      </div>`;
+    }).join('');
+    return statusHTML + `<div class="timeline">${rows}</div>`;
   };
 
   // ---------- stats + log ----------
@@ -432,7 +560,8 @@
   const refresh = async () => {
     setStatus('','Updating…');
     try {
-      const data = await fetchTrip();
+      const [data, fullTrips] = await Promise.all([fetchTrip(), fetchFullJourneys()]);
+      stopIndex = buildStopIndex(fullTrips);
       renderDepartures(data.Trip || []);
       renderLog();
       const now = new Date();
