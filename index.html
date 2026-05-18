@@ -357,6 +357,8 @@
 
   const renderDepartures = (trips) => {
     const el = document.getElementById('departures');
+    if (!window._openTrains) window._openTrains = new Set();
+    const openTrains = window._openTrains;
     if (!trips || !trips.length) {
       el.innerHTML = '<div class="empty">No upcoming trains found.</div>';
       return;
@@ -369,6 +371,7 @@
       const legs = (trip.LegList?.Leg || []).filter(l => l.type==='JNY');
       if (!legs.length) return '';
       const leg = legs[0];
+      const tripKey = (leg.name||'').trim() + '|' + (leg.Origin?.time||'');
       const O = leg.Origin, D = leg.Destination;
       const schedDT = parseDT(O.date, O.time);
       const realDT  = parseDT(O.rtDate||O.date, O.rtTime||O.time);
@@ -399,8 +402,9 @@
 
       const fullStops = stopIndex.get((leg.name||'').trim());
       const stopsHTML = renderStops(leg, fullStops);
+      const isOpen = openTrains.has(tripKey);
       return `
-        <div class="dep" data-idx="${idx}">
+        <div class="dep${isOpen?' open':''}" data-idx="${idx}" data-key="${tripKey}">
           <div class="dep-time">
             <div class="sched ${O.rtTime && !cancelled ? 'struck':''}">${fmtTime(O.time)}</div>
             ${O.rtTime && (delay>0||cancelled) ? `<div class="real ${cancelled?'cancel':''}">${fmtTime(O.rtTime)}</div>`:''}
@@ -418,15 +422,17 @@
             ${trackHTML}
           </div>
         </div>
-        <div class="stops" data-stops="${idx}">${stopsHTML}</div>`;
+        <div class="stops${isOpen?' open':''}" data-stops="${idx}">${stopsHTML}</div>`;
     }).join('');
     el.innerHTML = rows || '<div class="empty">No upcoming trains found.</div>';
     el.querySelectorAll('.dep').forEach(row => {
       row.addEventListener('click', () => {
         const idx = row.dataset.idx;
+        const key = row.dataset.key;
         const panel = el.querySelector(`.stops[data-stops="${idx}"]`);
-        const isOpen = row.classList.toggle('open');
-        if (panel) panel.classList.toggle('open', isOpen);
+        const nowOpen = row.classList.toggle('open');
+        if (panel) panel.classList.toggle('open', nowOpen);
+        if (nowOpen) openTrains.add(key); else openTrains.delete(key);
       });
     });
   };
