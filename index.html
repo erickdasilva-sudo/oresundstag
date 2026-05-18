@@ -1,852 +1,453 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#003F87">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Øresundståg">
-<title>Øresundståg — Hyllie ↔ CPH</title>
-<link rel="manifest" href="manifest.json">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Øresundståg Live — CPH ↔ Hyllie</title>
+<meta name="description" content="Live Øresundståg departures between Copenhagen Airport and Hyllie. Logs all delays over 20 minutes." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --blue:#003F87;--blue-light:#EDF4FC;
-  --red:#D32B2E;--red-light:#FCEBEB;
-  --green:#1D9E75;--green-light:#E1F5EE;
-  --amber:#854F0B;--amber-light:#FAEEDA;
-  --gray-50:#F7F8FA;--gray-100:#EAECF0;--gray-300:#C0C4CD;
-  --gray-500:#6B7280;--gray-900:#111827;--white:#fff;
-  --r-sm:8px;--r-md:12px;--r-lg:16px;
-  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
-  --safe-top:env(safe-area-inset-top,0px);
-  --safe-bottom:env(safe-area-inset-bottom,0px);
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);min-height:100dvh;padding-bottom:calc(1.5rem + var(--safe-bottom));-webkit-font-smoothing:antialiased}
+  :root{
+    --bg:#0a0e1a;
+    --bg-2:#0f1525;
+    --panel:#131a2e;
+    --panel-2:#1a2340;
+    --border:#222c4a;
+    --border-2:#2c3760;
+    --text:#e6ecff;
+    --muted:#8794b8;
+    --dim:#5a6485;
+    --brand:#00b4ff;
+    --brand-2:#0066ff;
+    --accent:#ffb800;
+    --green:#22d39a;
+    --red:#ff4d6d;
+    --orange:#ff8a3d;
+    --r:14px;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --sans:'Space Grotesk',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%,rgba(0,180,255,.12),transparent 60%),
+      radial-gradient(900px 500px at -10% 30%,rgba(0,102,255,.10),transparent 60%),
+      var(--bg);
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 22px 80px}
 
-/* HEADER */
-.header{background:var(--blue);padding:calc(1rem + var(--safe-top)) 1rem 0;position:sticky;top:0;z-index:10}
-.header-inner{display:flex;align-items:center;justify-content:space-between;max-width:480px;margin:0 auto}
-.header-left{display:flex;align-items:center;gap:10px}
-.train-icon{width:38px;height:38px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center}
-.train-icon svg{width:20px;height:20px;fill:white}
-.header-title{font-size:17px;font-weight:500;color:white}
-.header-sub{font-size:11px;color:rgba(255,255,255,.65);margin-top:1px}
-.live-badge{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border-radius:20px;padding:5px 10px;font-size:11px;font-weight:500;color:white}
-.live-dot{width:7px;height:7px;border-radius:50%;background:#9ca3af;flex-shrink:0}
-.live-dot.on{background:#4ade80;animation:pulse 1.5s infinite}
-.live-dot.err{background:#f87171}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  /* HEADER */
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,180,255,.35)}
+  .logo svg{width:24px;height:24px;fill:#fff}
+  .brand h1{font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .brand p{font-size:12px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+  .status{display:flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid var(--border);border-radius:999px;background:var(--panel);font-size:12px;font-family:var(--mono);color:var(--muted)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--dim)}
+  .dot.live{background:var(--green);box-shadow:0 0 0 4px rgba(34,211,154,.18);animation:p 1.6s infinite}
+  .dot.err{background:var(--red)}
+  @keyframes p{50%{opacity:.4}}
 
-/* TAB NAV */
-.tab-nav{display:grid;grid-template-columns:1fr 1fr;background:rgba(255,255,255,.12);border-radius:10px;padding:3px;margin:10px auto 0;max-width:480px}
-.tab-btn{padding:8px;border-radius:8px;border:none;background:transparent;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:500;color:rgba(255,255,255,.7);-webkit-appearance:none;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s}
-.tab-btn.active{background:white;color:var(--blue)}
-.tab-btn svg{width:13px;height:13px;fill:rgba(255,255,255,.7);flex-shrink:0}
-.tab-btn.active svg{fill:var(--blue)}
-.tab-spacer{height:12px}
+  /* DIRECTION TOGGLE */
+  .toggle{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:5px;gap:4px;margin-bottom:22px;max-width:680px}
+  .toggle button{flex:1;background:transparent;border:0;color:var(--muted);font-family:var(--sans);font-size:14px;font-weight:500;padding:14px 18px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s}
+  .toggle button .from-to{display:flex;align-items:center;gap:8px;font-weight:600}
+  .toggle button .arrow{color:var(--dim)}
+  .toggle button.active{background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff;box-shadow:0 6px 18px rgba(0,102,255,.35)}
+  .toggle button.active .arrow{color:rgba(255,255,255,.7)}
 
-/* MAIN */
-.main{max-width:480px;margin:0 auto;padding:1rem;display:flex;flex-direction:column;gap:12px}
-.tab-pane{display:none;flex-direction:column;gap:12px}
-.tab-pane.active{display:flex}
-.card{background:var(--white);border-radius:var(--r-md);border:1px solid var(--gray-100);padding:14px 16px}
+  /* GRID */
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:22px}
+  @media(max-width:920px){.grid{grid-template-columns:1fr}}
 
-/* DIR */
-.dir-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.dir-btn{padding:12px 14px;border-radius:var(--r-md);border:1.5px solid var(--gray-100);background:var(--white);cursor:pointer;font-family:var(--font);text-align:left;-webkit-appearance:none;transition:all .15s}
-.dir-btn.active{border-color:var(--blue);background:var(--blue-light)}
-.dir-btn-main{font-size:13px;font-weight:500;color:var(--gray-500)}
-.dir-btn.active .dir-btn-main{color:var(--blue)}
-.dir-btn-sub{font-size:11px;color:var(--gray-300);margin-top:2px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+  .card-head{padding:18px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+  .card-head h2{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  .card-head .meta{font-family:var(--mono);font-size:11px;color:var(--dim)}
 
-/* CATCH */
-.catch-title{font-size:12px;font-weight:500;color:var(--gray-500);display:flex;align-items:center;gap:6px;margin-bottom:12px}
-.catch-title svg{width:14px;height:14px;fill:var(--blue)}
-.catch-row{display:flex;align-items:center;gap:10px}
-.catch-label{font-size:13px;color:var(--gray-500);white-space:nowrap}
-.catch-slider{flex:1;accent-color:var(--blue)}
-.catch-val{font-size:14px;font-weight:500;color:var(--gray-900);min-width:52px;text-align:right;font-family:var(--mono)}
-.catch-result{margin-top:10px;padding:10px 12px;border-radius:var(--r-sm);font-size:13px;line-height:1.5;font-weight:500}
-.catch-result.green{background:var(--green-light);color:#085041}
-.catch-result.amber{background:var(--amber-light);color:var(--amber)}
-.catch-result.red{background:var(--red-light);color:#791F1F}
+  /* DEPARTURES */
+  .dep-list{display:flex;flex-direction:column}
+  .dep{display:grid;grid-template-columns:90px 1fr auto;gap:18px;padding:18px 20px;border-bottom:1px solid var(--border);align-items:center;transition:background .15s}
+  .dep:last-child{border-bottom:0}
+  .dep:hover{background:var(--panel-2)}
+  .dep-time{font-family:var(--mono)}
+  .dep-time .sched{font-size:22px;font-weight:600;letter-spacing:-.02em}
+  .dep-time .sched.struck{text-decoration:line-through;color:var(--dim);font-size:16px;font-weight:500}
+  .dep-time .real{font-size:22px;font-weight:600;letter-spacing:-.02em;color:var(--orange);display:block}
+  .dep-time .real.cancel{color:var(--red);text-decoration:line-through}
+  .dep-info .line{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .dep-info .badge{font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;background:rgba(0,180,255,.15);color:var(--brand);letter-spacing:.04em}
+  .dep-info .train-no{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .dep-info .dir{font-size:15px;font-weight:500;color:var(--text)}
+  .dep-info .sub{font-size:12px;color:var(--muted);margin-top:3px;font-family:var(--mono)}
+  .dep-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+  .delay{font-family:var(--mono);font-size:13px;font-weight:600;padding:4px 10px;border-radius:6px}
+  .delay.ok{background:rgba(34,211,154,.12);color:var(--green)}
+  .delay.warn{background:rgba(255,138,61,.15);color:var(--orange)}
+  .delay.bad{background:rgba(255,77,109,.15);color:var(--red)}
+  .delay.cancel{background:rgba(255,77,109,.2);color:var(--red)}
+  .track{font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .track b{color:var(--text);font-weight:600}
 
-/* ALERTS */
-.alert-banner{border-radius:var(--r-sm);padding:10px 14px;font-size:13px;line-height:1.5;display:none;gap:10px;align-items:flex-start}
-.alert-banner.show{display:flex}
-.alert-banner.cancelled{background:var(--red-light);color:#791F1F;border:1px solid #F09595}
-.alert-banner.warning{background:var(--amber-light);color:var(--amber);border:1px solid #EF9F27}
-.border-note{background:var(--amber-light);border-radius:var(--r-sm);padding:10px 12px;font-size:12px;color:var(--amber);display:none;gap:8px;align-items:flex-start;line-height:1.5}
-.border-note.show{display:flex}
-.border-note svg{width:14px;height:14px;fill:var(--amber);flex-shrink:0;margin-top:1px}
+  .empty{padding:60px 20px;text-align:center;color:var(--muted)}
+  .empty svg{width:42px;height:42px;opacity:.4;margin-bottom:12px}
 
-.section-label{font-size:11px;font-weight:500;color:var(--gray-300);letter-spacing:.05em;text-transform:uppercase;margin-bottom:-4px}
+  /* SIDEBAR */
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:18px 20px}
+  .stat{background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:14px}
+  .stat .v{font-family:var(--mono);font-size:24px;font-weight:600;letter-spacing:-.02em}
+  .stat .v.red{color:var(--red)}
+  .stat .v.orange{color:var(--orange)}
+  .stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
 
-/* DEP CARDS */
-.dep-list{display:flex;flex-direction:column;gap:8px}
-.dep-wrap{background:var(--white);border-radius:var(--r-md);border:1px solid var(--gray-100);overflow:hidden}
-.dep-wrap.is-next{border:2px solid var(--blue)}
-.dep-wrap.is-delayed{border-left:3px solid var(--red);border-radius:0 var(--r-md) var(--r-md) 0}
-.dep-wrap.is-cancelled{opacity:.6;background:var(--red-light);border-left:3px solid var(--red);border-radius:0 var(--r-md) var(--r-md) 0}
-.dep-wrap.catchable{border-color:var(--green)}
-.dep-wrap.expanded{border-color:var(--blue)}
-.dep-card{padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
-.dep-chevron{margin-left:4px;flex-shrink:0;transition:transform .25s}
-.dep-chevron svg{width:16px;height:16px;display:block}
-.dep-wrap.expanded .dep-chevron{transform:rotate(180deg)}
-.line-badge{width:36px;height:36px;border-radius:9px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:white;flex-shrink:0;font-family:var(--mono)}
-.line-badge.red{background:var(--red)}
-.dep-mid{flex:1;min-width:0}
-.dep-name{font-size:13px;font-weight:500;color:var(--gray-900);display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px}
-.dep-dir{font-size:12px;color:var(--gray-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tag{font-size:10px;padding:2px 6px;border-radius:5px;font-weight:500}
-.tag-next{background:var(--blue);color:white}
-.tag-catch{background:var(--green);color:white}
-.tag-delay{background:var(--red-light);color:#A32D2D}
-.tag-cancel{background:var(--red);color:white}
-.tag-scanned{background:var(--gray-100);color:var(--gray-500)}
-.dep-right{text-align:right;flex-shrink:0}
-.dep-planned{font-size:20px;font-weight:500;color:var(--gray-900);line-height:1;font-family:var(--mono)}
-.dep-planned.struck{text-decoration:line-through;color:var(--gray-300);font-size:14px}
-.dep-actual{font-size:15px;font-weight:500;color:var(--red);font-family:var(--mono);margin-top:1px}
-.dep-ontime{font-size:11px;color:var(--green);margin-top:2px}
-.dep-countdown{font-size:11px;color:var(--gray-500);margin-top:2px}
-.dep-countdown.soon{color:var(--red);font-weight:500}
-.dep-countdown.boarding{color:var(--green);font-weight:500}
-.dep-track{font-size:10px;color:var(--gray-300);margin-top:3px;font-family:var(--mono)}
+  .log{max-height:520px;overflow-y:auto}
+  .log::-webkit-scrollbar{width:8px}
+  .log::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px}
+  .log-item{padding:14px 20px;border-bottom:1px solid var(--border);font-size:13px}
+  .log-item:last-child{border-bottom:0}
+  .log-item .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .log-item .when{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .log-item .d{font-family:var(--mono);font-weight:600}
+  .log-item .d.red{color:var(--red)}
+  .log-item .d.orange{color:var(--orange)}
+  .log-item .route{font-size:13px;color:var(--text)}
+  .log-item .reason{font-size:11px;color:var(--dim);margin-top:3px;font-style:italic}
 
-/* JOURNEY PANEL */
-.journey-panel{display:none;border-top:1px solid var(--gray-100);padding:14px 14px 18px}
-.dep-wrap.expanded .journey-panel{display:block}
-.journey-loading{font-size:12px;color:var(--gray-300);text-align:center;padding:1rem 0}
-.journey-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.journey-title{font-size:11px;font-weight:500;color:var(--gray-500);text-transform:uppercase;letter-spacing:.04em}
-.journey-name{font-size:12px;font-weight:500;color:var(--blue)}
-.stop-list{display:flex;flex-direction:column}
-.stop-row{display:flex;align-items:stretch;min-height:48px}
-.stop-line-col{width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center}
-.stop-spacer{flex:1}
-.stop-line{width:2px;flex:1;background:var(--gray-100)}
-.stop-line.passed{background:var(--gray-300)}
-.stop-dot-wrap{width:30px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1}
-.stop-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--gray-300);background:var(--white)}
-.stop-dot.passed{background:var(--gray-300);border-color:var(--gray-300)}
-.stop-dot.current{background:var(--blue);border-color:var(--blue);width:14px;height:14px;box-shadow:0 0 0 4px rgba(0,63,135,.15)}
-.stop-dot.origin{background:var(--blue);border-color:var(--blue)}
-.stop-dot.dest{background:var(--red);border-color:var(--red)}
-.stop-content{flex:1;padding:2px 0 2px 10px;display:flex;align-items:flex-start;justify-content:space-between;min-height:48px}
-.stop-name{font-size:13px;color:var(--gray-500);padding-top:3px;line-height:1.3}
-.stop-name.bold{font-weight:500;color:var(--gray-900)}
-.stop-name.cur{font-weight:500;color:var(--blue)}
-.stop-platform{font-size:10px;color:var(--gray-300);margin-top:2px;font-family:var(--mono)}
-.stop-times{text-align:right;padding-top:3px;flex-shrink:0;min-width:52px}
-.s-planned{font-size:13px;font-family:var(--mono);color:var(--gray-500)}
-.s-planned.bold{color:var(--gray-900);font-weight:500}
-.s-planned.struck{text-decoration:line-through;color:var(--gray-300);font-size:11px}
-.s-actual{font-size:13px;font-family:var(--mono);font-weight:500;color:var(--red)}
-.s-cur{font-size:10px;color:var(--blue);font-weight:500;margin-top:1px}
+  .actions{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--border)}
+  .btn{flex:1;background:var(--bg-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:500;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .15s}
+  .btn:hover{background:var(--panel-2);border-color:var(--border-2)}
+  .btn.danger:hover{background:rgba(255,77,109,.1);border-color:var(--red);color:var(--red)}
 
-/* DELAY LOG TAB */
-.log-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.stat-tile{background:var(--white);border:1px solid var(--gray-100);border-radius:var(--r-md);padding:12px;text-align:center}
-.stat-val{font-size:22px;font-weight:500;color:var(--gray-900);font-family:var(--mono)}
-.stat-val.red{color:var(--red)}
-.stat-lbl{font-size:11px;color:var(--gray-300);margin-top:3px}
-.log-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.log-filter-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--gray-100);background:var(--white);font-size:12px;font-weight:500;color:var(--gray-500);cursor:pointer;font-family:var(--font);-webkit-appearance:none;transition:all .15s}
-.log-filter-btn.active{background:var(--blue);border-color:var(--blue);color:white}
-.log-clear-btn{margin-left:auto;font-size:12px;color:var(--gray-300);background:none;border:none;cursor:pointer;font-family:var(--font);padding:4px 0}
-.log-list{display:flex;flex-direction:column;gap:6px}
-.log-date-group{font-size:11px;font-weight:500;color:var(--gray-300);letter-spacing:.04em;text-transform:uppercase;padding:8px 2px 2px}
-.log-card{background:var(--white);border:1px solid var(--gray-100);border-radius:var(--r-md);padding:11px 13px;display:flex;align-items:center;gap:12px}
-.log-badge{width:44px;height:44px;border-radius:9px;background:var(--red-light);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
-.log-badge-num{font-size:16px;font-weight:500;color:var(--red);font-family:var(--mono);line-height:1}
-.log-badge-unit{font-size:9px;color:var(--red);font-weight:500;margin-top:1px}
-.log-mid{flex:1;min-width:0}
-.log-route{font-size:13px;font-weight:500;color:var(--gray-900)}
-.log-meta{font-size:11px;color:var(--gray-500);margin-top:2px}
-.log-right{text-align:right;flex-shrink:0}
-.log-planned{font-size:11px;color:var(--gray-300);text-decoration:line-through;font-family:var(--mono)}
-.log-actual{font-size:14px;font-weight:500;color:var(--red);font-family:var(--mono);margin-top:1px}
-.log-empty{text-align:center;padding:2.5rem 1rem;color:var(--gray-300);font-size:13px;line-height:1.8}
-.log-empty-icon{font-size:36px;margin-bottom:8px}
-.log-note{font-size:11px;color:var(--gray-300);line-height:1.5}
+  .footer{margin-top:32px;text-align:center;font-size:11px;color:var(--dim);font-family:var(--mono);line-height:1.7}
+  .footer a{color:var(--muted)}
+  .note{background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.25);color:#ffd370;padding:12px 16px;border-radius:10px;font-size:12px;margin-bottom:18px;line-height:1.5}
+  .note b{color:var(--accent)}
 
-/* API */
-.api-section{display:flex;flex-direction:column;gap:8px}
-.api-row{display:flex;gap:8px}
-.api-input{flex:1;font-size:13px;padding:10px 12px;border-radius:var(--r-sm);border:1px solid var(--gray-100);background:var(--gray-50);color:var(--gray-900);font-family:var(--font);outline:none}
-.api-input:focus{border-color:var(--blue);background:var(--white)}
-.api-btn{font-size:13px;padding:10px 16px;border-radius:var(--r-sm);border:none;background:var(--blue);color:white;cursor:pointer;font-family:var(--font);font-weight:500;white-space:nowrap;-webkit-appearance:none}
-.api-hint{font-size:11px;color:var(--gray-300);line-height:1.5}
-.api-hint a{color:var(--blue);text-decoration:none}
-.api-saved{font-size:12px;color:var(--green);font-weight:500}
-.footer{display:flex;align-items:center;justify-content:space-between;padding-top:4px}
-.upd{font-size:11px;color:var(--gray-300)}
-.ref-btn{font-size:12px;color:var(--blue);background:none;border:none;cursor:pointer;font-family:var(--font);font-weight:500;padding:4px 0}
-.empty{text-align:center;padding:2rem 1rem;color:var(--gray-300);font-size:13px}
-.spinner{text-align:center;padding:1.5rem;color:var(--gray-300);font-size:13px}
+  /* MOBILE */
+  @media(max-width:600px){
+    .wrap{padding:18px 14px 60px}
+    header{margin-bottom:20px}
+    .brand{gap:10px}
+    .logo{width:38px;height:38px;border-radius:10px}
+    .logo svg{width:20px;height:20px}
+    .brand h1{font-size:16px}
+    .brand p{font-size:11px}
+    .status{padding:6px 10px;font-size:11px}
+    .toggle{flex-direction:column;border-radius:12px;padding:4px;gap:4px}
+    .toggle button{padding:12px 14px;font-size:13px;border-radius:8px}
+    .note{font-size:11.5px;padding:10px 12px}
+    .card-head{padding:14px 16px}
+    .card-head h2{font-size:12px}
+    .dep{grid-template-columns:72px 1fr auto;gap:12px;padding:14px 16px}
+    .dep-time .sched{font-size:18px}
+    .dep-time .sched.struck{font-size:13px}
+    .dep-time .real{font-size:18px}
+    .dep-info .dir{font-size:14px}
+    .dep-info .sub{font-size:11px}
+    .delay{font-size:12px;padding:3px 8px}
+    .stats{grid-template-columns:1fr 1fr;gap:8px;padding:14px 16px}
+    .stat{padding:12px}
+    .stat .v{font-size:20px}
+    .log-item{padding:12px 16px}
+    .actions{padding:12px 16px;flex-wrap:wrap}
+    .btn{font-size:10.5px;padding:9px 6px;flex:1 1 30%}
+    .footer{font-size:10.5px;margin-top:24px}
+  }
 </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="header-inner">
-    <div class="header-left">
-      <div class="train-icon">
-        <svg viewBox="0 0 24 24"><path d="M4 16c0 1.1.9 2 2 2h1l-1 3h2l1-3h6l1 3h2l-1-3h1c1.1 0 2-.9 2-2V6c0-3-3.5-4-9-4S4 3 4 6v10zm8-11c4.2 0 6.5.8 7 1.5V9H5V6.5C5.5 5.8 7.8 5 12 5zM5 11h14v4H5v-4z"/></svg>
-      </div>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo"><svg viewBox="0 0 24 24"><path d="M12 2C7 2 5 3 5 7v7a3 3 0 0 0 3 3l-1 2h2l1-2h4l1 2h2l-1-2a3 3 0 0 0 3-3V7c0-4-2-5-7-5zm-3 3h6v4H9V5zm-1 7a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm8 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/></svg></div>
       <div>
-        <div class="header-title">Øresundståg</div>
-        <div class="header-sub">Hyllie ↔ CPH Airport</div>
+        <h1>Øresundståg Live</h1>
+        <p>Real-time departures · ResRobot API</p>
       </div>
     </div>
-    <div class="live-badge">
-      <div class="live-dot" id="liveDot"></div>
-      <span id="liveLabel">Demo</span>
+    <div class="status"><span id="dot" class="dot"></span><span id="statusText">Connecting…</span></div>
+  </header>
+
+  <div class="note">
+    <b>Note:</b> The Rejseplanen API doesn't expose historical delay archives. This app logs every observed delay ≥ 20 min from your browser as it runs. Keep the tab open or re-visit to build up your 30-day history.
+  </div>
+
+  <div class="toggle" id="dirToggle">
+    <button data-dir="cph-hyl" class="active">
+      <span class="from-to">CPH Airport <span class="arrow">→</span> Hyllie</span>
+    </button>
+    <button data-dir="hyl-cph">
+      <span class="from-to">Hyllie <span class="arrow">→</span> CPH Airport</span>
+    </button>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-head">
+        <h2>Next Departures</h2>
+        <span class="meta" id="lastUpdate">—</span>
+      </div>
+      <div class="dep-list" id="departures">
+        <div class="empty">Loading departures…</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:18px">
+        <div class="card-head"><h2>Last 30 days</h2><span class="meta">delays ≥ 20m</span></div>
+        <div class="stats">
+          <div class="stat"><div class="v" id="sCount">0</div><div class="l">Incidents</div></div>
+          <div class="stat"><div class="v orange" id="sAvg">—</div><div class="l">Avg delay</div></div>
+          <div class="stat"><div class="v red" id="sMax">—</div><div class="l">Worst</div></div>
+          <div class="stat"><div class="v" id="sCancel">0</div><div class="l">Cancelled</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Delay log</h2><span class="meta" id="logCount">0 entries</span></div>
+        <div class="log" id="logList"><div class="empty" style="padding:30px 20px;font-size:13px">No delays ≥ 20 min recorded yet.</div></div>
+        <div class="actions">
+          <button class="btn" id="btnCsv">Export CSV</button>
+          <button class="btn" id="btnJson">Export JSON</button>
+          <button class="btn danger" id="btnClear">Clear</button>
+        </div>
+      </div>
     </div>
   </div>
-  <div id="scanBadge" style="display:none;max-width:480px;margin:6px auto 0;font-size:11px;font-weight:500;color:white;padding:4px 12px;border-radius:20px;align-items:center;gap:5px;"></div>
-  <div class="tab-nav">
-    <button class="tab-btn active" id="tab-dep" onclick="switchTab('dep')">
-      <svg viewBox="0 0 24 24"><path d="M4 16c0 1.1.9 2 2 2h1l-1 3h2l1-3h6l1 3h2l-1-3h1c1.1 0 2-.9 2-2V6c0-3-3.5-4-9-4S4 3 4 6v10z"/></svg>
-      Departures
-    </button>
-    <button class="tab-btn" id="tab-log" onclick="switchTab('log')">
-      <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-      Delay Log
-    </button>
+
+  <div class="footer">
+    Data: <a href="https://www.trafiklab.se/" target="_blank" rel="noopener">Trafiklab ResRobot v2.1</a> · Updates every 30 s · Built for GitHub Pages
   </div>
-  <div class="tab-spacer"></div>
 </div>
 
-<div class="main">
-
-  <!-- DEPARTURES TAB -->
-  <div class="tab-pane active" id="pane-dep">
-
-    <div class="api-section card">
-      <div id="apiStatus"></div>
-      <div class="api-row" id="apiRow">
-        <input class="api-input" type="text" id="apiKeyInput" placeholder="Paste Rejseplanen accessId..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-        <button class="api-btn" onclick="saveKey()">Save</button>
-      </div>
-      <div class="api-hint">Free key at <a href="https://labs.rejseplanen.dk" target="_blank">labs.rejseplanen.dk</a> — saved locally on your device.</div>
-    </div>
-
-    <div class="dir-toggle">
-      <button class="dir-btn active" id="btn-hc" onclick="setDir('hc')">
-        <div class="dir-btn-main">→ Hyllie → CPH</div>
-        <div class="dir-btn-sub">To Airport T3</div>
-      </button>
-      <button class="dir-btn" id="btn-ch" onclick="setDir('ch')">
-        <div class="dir-btn-main">← CPH → Hyllie</div>
-        <div class="dir-btn-sub">To Malmö Hyllie</div>
-      </button>
-    </div>
-
-    <div class="card">
-      <div class="catch-title">
-        <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-        Can I catch it?
-      </div>
-      <div class="catch-row">
-        <span class="catch-label">I am</span>
-        <input type="range" min="1" max="30" value="8" step="1" class="catch-slider" id="walkSlider" oninput="updateCatch()">
-        <span class="catch-val"><span id="walkVal">8</span> min away</span>
-      </div>
-      <div class="catch-result green" id="catchResult">Checking...</div>
-    </div>
-
-    <div class="alert-banner" id="alertBanner">
-      <span style="font-size:15px;flex-shrink:0">⚠</span>
-      <span id="alertText"></span>
-    </div>
-
-    <div class="border-note" id="borderNote">
-      <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
-      <span>Border control at Hyllie (Sweden-bound): scheduled 5-6 min stop. Not a delay — have your ID ready.</span>
-    </div>
-
-    <div class="section-label">Next departures — tap for live journey</div>
-    <div class="dep-list" id="depList">
-      <div class="spinner">Loading departures...</div>
-    </div>
-
-    <div class="footer">
-      <span class="upd" id="updTxt"></span>
-      <button class="ref-btn" onclick="loadDepartures()">Refresh ↻</button>
-    </div>
-
-  </div><!-- end dep tab -->
-
-  <!-- DELAY LOG TAB -->
-  <div class="tab-pane" id="pane-log">
-
-    <div class="log-stats" id="logStats">
-      <div class="stat-tile"><div class="stat-val red" id="statTotal">0</div><div class="stat-lbl">Total delays</div></div>
-      <div class="stat-tile"><div class="stat-val red" id="statAvg">—</div><div class="stat-lbl">Avg delay</div></div>
-      <div class="stat-tile"><div class="stat-val red" id="statWorst">—</div><div class="stat-lbl">Worst delay</div></div>
-    </div>
-
-    <div class="log-controls">
-      <button class="log-filter-btn active" id="lf-all" onclick="setLogFilter('all')">All</button>
-      <button class="log-filter-btn" id="lf-hc" onclick="setLogFilter('hc')">→ CPH</button>
-      <button class="log-filter-btn" id="lf-ch" onclick="setLogFilter('ch')">← Hyllie</button>
-      <button class="log-clear-btn" onclick="clearLog()">Clear all</button>
-    </div>
-
-    <div class="log-list" id="logList"></div>
-
-    <div class="log-note">Delays of 25 min or more are logged automatically when the app is open and connected to live data. Records are kept for 30 days.</div>
-
-  </div><!-- end log tab -->
-
-</div><!-- end main -->
-
 <script>
-var dir='hc', apiKey='', lastDeps=[], expandedIdx=null, journeyCache={};
-var logFilter='all';
-var ORIGIN={hc:'8600626',ch:'8600645'};
-var DELAY_THRESHOLD=25;
-var THIRTY_DAYS=30*24*60*60*1000;
-var seenDelays={};
+(() => {
+  const API = 'https://api.resrobot.se/v2.1';
+  const KEY = 'fd1bab0c-812e-4a47-9390-c00a6afd2949';
+  const STOPS = {
+    cph: { id:'860000858', name:'CPH Airport' },
+    hyl: { id:'740001586', name:'Hyllie St.' }
+  };
+  const STORE = 'oresundstag.delays.v1';
+  const THRESHOLD = 20;
+  const POLL_MS = 30000;
 
-function pad(n){return String(n).padStart(2,'0')}
-function nowStr(){var d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())}
-function fmtTm(t){if(!t)return '';var p=t.split(':');return pad(parseInt(p[0]))+':'+pad(parseInt(p[1]))}
-function parseMins(t){if(!t)return null;var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1])}
-function minsUntil(t){
-  if(!t)return 999;
-  var pm=parseMins(t),n=new Date(),nm=n.getHours()*60+n.getMinutes(),d=pm-nm;
-  if(d<-60)d+=1440;return d;
-}
-function delayMins(planned,actual){
-  if(!actual)return 0;
-  var a=parseMins(actual),b=parseMins(planned);
-  if(a===null||b===null)return 0;
-  var d=a-b;if(d<-60)d+=1440;return Math.max(0,d);
-}
-function fmtDate(ts){
-  var d=new Date(ts);
-  return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear();
-}
-function fmtDateGroup(ts){
-  var d=new Date(ts);
-  var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()];
-}
+  let direction = 'cph-hyl'; // origin first
+  let timer = null;
 
-/* ---- TAB ---- */
-function switchTab(t){
-  document.getElementById('pane-dep').className='tab-pane'+(t==='dep'?' active':'');
-  document.getElementById('pane-log').className='tab-pane'+(t==='log'?' active':'');
-  document.getElementById('tab-dep').className='tab-btn'+(t==='dep'?' active':'');
-  document.getElementById('tab-log').className='tab-btn'+(t==='log'?' active':'');
-  if(t==='log')renderLog();
-}
+  // ---------- storage ----------
+  const loadLog = () => {
+    try { return JSON.parse(localStorage.getItem(STORE)||'[]'); } catch { return []; }
+  };
+  const saveLog = (arr) => localStorage.setItem(STORE, JSON.stringify(arr));
 
-/* ---- API KEY ---- */
-function loadStoredKey(){
-  try{var k=localStorage.getItem('rp_api_key');if(k){apiKey=k;showKeySaved();}}catch(e){}
-}
-function saveKey(){
-  var v=document.getElementById('apiKeyInput').value.trim();
-  if(!v)return;apiKey=v;
-  try{localStorage.setItem('rp_api_key',v);}catch(e){}
-  document.getElementById('apiKeyInput').value='';
-  showKeySaved();loadDepartures();
-}
-function clearKey(){
-  apiKey='';try{localStorage.removeItem('rp_api_key');}catch(e){}
-  document.getElementById('apiStatus').innerHTML='';
-  document.getElementById('apiRow').style.display='flex';
-  loadDepartures();
-}
-function showKeySaved(){
-  document.getElementById('apiStatus').innerHTML='<div class="api-saved">API key saved on this device. <button onclick="clearKey()" style="background:none;border:none;color:#6B7280;font-size:11px;cursor:pointer;font-family:var(--font);padding:0;margin-left:6px">Remove</button></div>';
-  document.getElementById('apiRow').style.display='none';
-}
-
-/* ---- DELAY LOG ---- */
-function loadLog(){
-  try{var raw=localStorage.getItem('delay_log');return raw?JSON.parse(raw):[];}catch(e){return [];}
-}
-function saveLog(entries){
-  try{localStorage.setItem('delay_log',JSON.stringify(entries));}catch(e){}
-}
-function pruneLog(){
-  var entries=loadLog();
-  var cutoff=Date.now()-THIRTY_DAYS;
-  var pruned=entries.filter(function(e){return e.ts>cutoff;});
-  if(pruned.length!==entries.length)saveLog(pruned);
-  return pruned;
-}
-function recordDelay(dep,dlyMins){
-  var key=dep.time+'_'+dir;
-  if(seenDelays[key])return;
-  seenDelays[key]=true;
-  var entries=loadLog();
-  entries.unshift({
-    ts:Date.now(),
-    dir:dir,
-    planned:fmtTm(dep.time),
-    actual:fmtTm(dep.rtTime),
-    delay:dlyMins,
-    towards:dep.direction,
-    cancelled:!!dep.cancelled
-  });
-  var cutoff=Date.now()-THIRTY_DAYS;
-  entries=entries.filter(function(e){return e.ts>cutoff;});
-  saveLog(entries);
-}
-function checkAndLogDelays(deps){
-  deps.forEach(function(d){
-    var dly=delayMins(d.time,d.rtTime);
-    if(dly>=DELAY_THRESHOLD){recordDelay(d,dly);}
-    if(d.cancelled){
-      var key='cancel_'+d.time+'_'+dir;
-      if(!seenDelays[key]){
-        seenDelays[key]=true;
-        var entries=loadLog();
-        entries.unshift({ts:Date.now(),dir:dir,planned:fmtTm(d.time),actual:'—',delay:0,towards:d.direction,cancelled:true});
-        saveLog(entries);
+  const recordDelay = (entry) => {
+    const log = loadLog();
+    // dedupe by trainNo + scheduledISO
+    const dup = log.find(e => e.train === entry.train && e.scheduled === entry.scheduled);
+    if (dup) {
+      // update if delay grew
+      if (entry.delay > dup.delay) {
+        dup.delay = entry.delay;
+        dup.observedAt = entry.observedAt;
+        dup.cancelled = entry.cancelled;
+        if (entry.reason) dup.reason = entry.reason;
+        saveLog(log);
       }
+      return;
     }
+    log.push(entry);
+    // prune > 60 days
+    const cutoff = Date.now() - 60*24*3600*1000;
+    const pruned = log.filter(e => new Date(e.scheduled).getTime() > cutoff);
+    saveLog(pruned);
+  };
+
+  // ---------- fetch ----------
+  const setStatus = (state, text) => {
+    const dot = document.getElementById('dot');
+    dot.className = 'dot ' + (state==='live'?'live':state==='err'?'err':'');
+    document.getElementById('statusText').textContent = text;
+  };
+
+  const fetchTrip = async () => {
+    const [a,b] = direction.split('-');
+    const o = a==='cph'?STOPS.cph:STOPS.hyl;
+    const d = b==='hyl'?STOPS.hyl:STOPS.cph;
+    const url = `${API}/trip?originExtId=${o.id}&destExtId=${d.id}&accessId=${KEY}&format=json&numF=6&passlist=0`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    const json = await r.json();
+    if (json.errorCode) throw new Error(json.errorText || json.errorCode);
+    return json;
+  };
+
+  // ---------- render ----------
+  const fmtTime = (t) => t ? t.slice(0,5) : '—';
+  const parseDT = (date, time) => {
+    if (!date || !time) return null;
+    return new Date(`${date}T${time}`);
+  };
+  const diffMin = (sched, real) => Math.round((real - sched)/60000);
+
+  const renderDepartures = (trips) => {
+    const el = document.getElementById('departures');
+    if (!trips || !trips.length) {
+      el.innerHTML = '<div class="empty">No upcoming trains found.</div>';
+      return;
+    }
+    const [a,b] = direction.split('-');
+    const fromName = (a==='cph'?STOPS.cph:STOPS.hyl).name;
+    const toName   = (b==='hyl'?STOPS.hyl:STOPS.cph).name;
+
+    const rows = trips.map(trip => {
+      const legs = (trip.LegList?.Leg || []).filter(l => l.type==='JNY');
+      if (!legs.length) return '';
+      const leg = legs[0];
+      const O = leg.Origin, D = leg.Destination;
+      const schedDT = parseDT(O.date, O.time);
+      const realDT  = parseDT(O.rtDate||O.date, O.rtTime||O.time);
+      const cancelled = !!(leg.cancelled || O.cancelled || D.cancelled);
+      const delay = (O.rtTime && schedDT && realDT) ? diffMin(schedDT, realDT) : 0;
+      const reason = (leg.Messages?.Message?.[0]?.head) || '';
+
+      // log if >= threshold or cancelled
+      if (schedDT && (cancelled || delay >= THRESHOLD)) {
+        recordDelay({
+          observedAt: new Date().toISOString(),
+          scheduled: schedDT.toISOString(),
+          actual: realDT ? realDT.toISOString() : null,
+          delay: cancelled ? 999 : delay,
+          cancelled,
+          train: leg.name?.trim() || 'Train',
+          from: O.name,
+          to: D.name,
+          reason: reason || (cancelled ? 'Cancelled' : '')
+        });
+      }
+
+      const delayCls = cancelled ? 'cancel' : delay >= THRESHOLD ? 'bad' : delay >= 5 ? 'warn' : 'ok';
+      const delayTxt = cancelled ? 'CANCELLED' : delay > 0 ? `+${delay} min` : 'On time';
+      const sTrack = O.track || O.rtTrack;
+      const rTrack = O.rtTrack;
+      const trackHTML = sTrack ? `<div class="track">Track <b>${rTrack||sTrack}</b></div>` : '';
+
+      return `
+        <div class="dep">
+          <div class="dep-time">
+            <div class="sched ${O.rtTime && !cancelled ? 'struck':''}">${fmtTime(O.time)}</div>
+            ${O.rtTime && (delay>0||cancelled) ? `<div class="real ${cancelled?'cancel':''}">${fmtTime(O.rtTime)}</div>`:''}
+          </div>
+          <div class="dep-info">
+            <div class="line">
+              <span class="badge">${(leg.name||'').split(' ')[0]||'TRAIN'}</span>
+              <span class="train-no">${leg.name||''}</span>
+            </div>
+            <div class="dir">${fromName} → ${toName}</div>
+            <div class="sub">Arr ${fmtTime(D.rtTime||D.time)} · ${D.name}</div>
+          </div>
+          <div class="dep-right">
+            <div class="delay ${delayCls}">${delayTxt}</div>
+            ${trackHTML}
+          </div>
+        </div>`;
+    }).join('');
+    el.innerHTML = rows || '<div class="empty">No upcoming trains found.</div>';
+  };
+
+  // ---------- stats + log ----------
+  const renderLog = () => {
+    const log = loadLog();
+    const cutoff = Date.now() - 30*24*3600*1000;
+    const recent = log.filter(e => new Date(e.scheduled).getTime() > cutoff)
+                      .sort((a,b)=> new Date(b.scheduled) - new Date(a.scheduled));
+
+    document.getElementById('logCount').textContent = `${recent.length} entr${recent.length===1?'y':'ies'}`;
+    const delays = recent.filter(e => !e.cancelled).map(e=>e.delay);
+    const cancelled = recent.filter(e=>e.cancelled).length;
+    document.getElementById('sCount').textContent = recent.length;
+    document.getElementById('sAvg').textContent = delays.length ? Math.round(delays.reduce((a,b)=>a+b,0)/delays.length)+'m' : '—';
+    document.getElementById('sMax').textContent = delays.length ? Math.max(...delays)+'m' : '—';
+    document.getElementById('sCancel').textContent = cancelled;
+
+    const list = document.getElementById('logList');
+    if (!recent.length) {
+      list.innerHTML = '<div class="empty" style="padding:30px 20px;font-size:13px">No delays ≥ 20 min recorded yet.</div>';
+      return;
+    }
+    list.innerHTML = recent.slice(0,100).map(e => {
+      const dt = new Date(e.scheduled);
+      const when = dt.toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      const dCls = e.cancelled ? 'red' : e.delay >= 30 ? 'red' : 'orange';
+      const dTxt = e.cancelled ? 'CANCELLED' : `+${e.delay}m`;
+      return `<div class="log-item">
+        <div class="top">
+          <span class="when">${when}</span>
+          <span class="d ${dCls}">${dTxt}</span>
+        </div>
+        <div class="route">${e.train} · ${shortName(e.from)} → ${shortName(e.to)}</div>
+        ${e.reason ? `<div class="reason">${escapeHtml(e.reason)}</div>`:''}
+      </div>`;
+    }).join('');
+  };
+
+  const shortName = (s='') => s.replace(' St.','').replace('Københavns ','').replace('CPH ','CPH ');
+  const escapeHtml = (s) => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  // ---------- exports ----------
+  const download = (name, mime, content) => {
+    const blob = new Blob([content], {type:mime});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+  document.getElementById('btnJson').onclick = () => {
+    download('oresundstag-delays.json','application/json',JSON.stringify(loadLog(),null,2));
+  };
+  document.getElementById('btnCsv').onclick = () => {
+    const log = loadLog();
+    const rows = [['observed_at','scheduled','actual','delay_min','cancelled','train','from','to','reason']];
+    log.forEach(e => rows.push([e.observedAt,e.scheduled,e.actual||'',e.delay,e.cancelled?'1':'0',e.train,e.from,e.to,(e.reason||'').replace(/"/g,'""')]));
+    const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+    download('oresundstag-delays.csv','text/csv',csv);
+  };
+  document.getElementById('btnClear').onclick = () => {
+    if (confirm('Clear all logged delays?')) { saveLog([]); renderLog(); }
+  };
+
+  // ---------- toggle ----------
+  document.getElementById('dirToggle').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('#dirToggle button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    direction = b.dataset.dir;
+    refresh();
   });
-}
-function setLogFilter(f){
-  logFilter=f;
-  ['all','hc','ch'].forEach(function(x){
-    document.getElementById('lf-'+x).className='log-filter-btn'+(f===x?' active':'');
-  });
+
+  // ---------- loop ----------
+  const refresh = async () => {
+    setStatus('','Updating…');
+    try {
+      const data = await fetchTrip();
+      renderDepartures(data.Trip || []);
+      renderLog();
+      const now = new Date();
+      document.getElementById('lastUpdate').textContent = 'Updated ' + now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      setStatus('live','Live');
+    } catch (err) {
+      console.error(err);
+      setStatus('err','Connection error');
+    }
+  };
+
   renderLog();
-}
-function clearLog(){
-  if(!confirm('Clear all delay records?'))return;
-  saveLog([]);seenDelays={};renderLog();
-}
-function renderLog(){
-  var entries=pruneLog();
-  var filtered=logFilter==='all'?entries:entries.filter(function(e){return e.dir===logFilter;});
-
-  // stats
-  var delays=filtered.filter(function(e){return !e.cancelled&&e.delay>0;});
-  document.getElementById('statTotal').textContent=filtered.length;
-  if(delays.length){
-    var avg=Math.round(delays.reduce(function(s,e){return s+e.delay;},0)/delays.length);
-    var worst=Math.max.apply(null,delays.map(function(e){return e.delay;}));
-    document.getElementById('statAvg').textContent=avg+' min';
-    document.getElementById('statWorst').textContent=worst+' min';
-  } else {
-    document.getElementById('statAvg').textContent='—';
-    document.getElementById('statWorst').textContent='—';
-  }
-
-  var list=document.getElementById('logList');
-  if(!filtered.length){
-    list.innerHTML='<div class="log-empty"><div class="log-empty-icon">✅</div>No delays of 25+ min recorded yet.<br>Records appear here automatically when the app detects a big delay.</div>';
-    return;
-  }
-
-  // group by date
-  var groups={},groupOrder=[];
-  filtered.forEach(function(e){
-    var dk=fmtDate(e.ts);
-    if(!groups[dk]){groups[dk]=[];groupOrder.push({key:dk,ts:e.ts});}
-    groups[dk].push(e);
-  });
-
-  var html='';
-  groupOrder.forEach(function(g){
-    html+='<div class="log-date-group">'+fmtDateGroup(g.ts)+'</div>';
-    groups[g.key].forEach(function(e){
-      var dirLabel=e.dir==='hc'?'Hyllie → CPH':'CPH → Hyllie';
-      var badgeHtml=e.cancelled
-        ?'<div class="log-badge" style="background:#fce8e8"><div class="log-badge-num" style="font-size:12px;color:var(--red)">CAN</div><div class="log-badge-unit">CELLED</div></div>'
-        :'<div class="log-badge"><div class="log-badge-num">+'+e.delay+'</div><div class="log-badge-unit">MIN</div></div>';
-      var scannedTag=e.scanned?'<span style="font-size:10px;background:var(--gray-100);color:var(--gray-500);padding:1px 5px;border-radius:4px;margin-left:4px">auto-scanned</span>':'';
-      html+='<div class="log-card">'+
-        badgeHtml+
-        '<div class="log-mid">'+
-          '<div class="log-route">'+dirLabel+scannedTag+'</div>'+
-          '<div class="log-meta">→ '+e.towards+'</div>'+
-        '</div>'+
-        '<div class="log-right">'+
-          '<div class="log-planned">'+e.planned+'</div>'+
-          '<div class="log-actual">'+(e.cancelled?'Cancelled':e.actual)+'</div>'+
-        '</div>'+
-      '</div>';
-    });
-  });
-  list.innerHTML=html;
-}
-
-/* ---- DIR ---- */
-function setDir(d){
-  dir=d;expandedIdx=null;journeyCache={};
-  document.getElementById('btn-hc').className='dir-btn'+(d==='hc'?' active':'');
-  document.getElementById('btn-ch').className='dir-btn'+(d==='ch'?' active':'');
-  document.getElementById('borderNote').className='border-note'+(d==='ch'?' show':'');
-  loadDepartures();
-}
-function isOresund(dep){
-  var dest=(dep.direction||dep.direction||'').toLowerCase();
-  var name=(dep.name||'').toLowerCase();
-  // Exclude S-tog and Metro
-  if(name.indexOf('s-tog')>-1||name.indexOf('metro')>-1)return false;
-  // From Hyllie (hc): trains must be heading towards Denmark/CPH side
-  if(dir==='hc'){
-    var cphTerms=['københavn','lufthavn','cph','kastrup','helsingør','helsingborg','odense','aarhus','aalborg','fredericia','esbjerg','roskilde','ørestad','tårnby','østerport','nørreport'];
-    return cphTerms.some(function(t){return dest.indexOf(t)>-1;});
-  }
-  // From CPH (ch): trains must be heading towards Sweden/Hyllie side
-  if(dir==='ch'){
-    var sweTerms=['hyllie','malmö','malmø','göteborg','gothenburg','helsingborg','lund','kristianstad','kalmar','stockholm','triangeln','halmstad','varberg','ängelholm','landskrona'];
-    return sweTerms.some(function(t){return dest.indexOf(t)>-1;});
-  }
-  return false;
-}
-
-/* ---- DEMO ---- */
-function buildDemo(){
-  var n=new Date(),base=n.getHours()*60+n.getMinutes();
-  var dHC=['København H','CPH Lufthavn','Helsingør','København H','CPH Lufthavn'];
-  var dCH=['Malmö Hyllie','Göteborg C','Malmö Hyllie','Göteborg C','Malmö Hyllie'];
-  var delays=[0,0,7,0,0],tracks=['2','1','2','1','2'],out=[];
-  for(var i=0;i<5;i++){
-    var dm=base+(i===0?3:3+i*20),h=Math.floor(dm/60)%24,m=dm%60;
-    var pl=pad(h)+':'+pad(m)+':00',dly=delays[i];
-    var ac=dly>0?pad(Math.floor((dm+dly)/60)%24)+':'+pad((dm+dly)%60)+':00':null;
-    out.push({name:'Øresundståg',direction:(dir==='hc'?dHC:dCH)[i],time:pl,rtTime:ac,cancelled:false,track:tracks[i],_demo:i});
-  }
-  return out;
-}
-
-function buildDemoJourney(dep){
-  var isHC=dir==='hc';
-  var sHC=[
-    {n:'Helsingborg C',t:'4a'},{n:'Ramlösa',t:'1'},{n:'Landskrona',t:'1'},
-    {n:'Lund C',t:'1'},{n:'Malmö C',t:'1b'},{n:'Triangeln',t:'1'},
-    {n:'Malmö Hyllie',t:'1b'},{n:'CPH Lufthavn',t:'1'}
-  ];
-  var sCH=[
-    {n:'København H',t:'5'},{n:'Ørestad St.',t:'1'},
-    {n:'Tårnby St.',t:'1'},{n:'CPH Lufthavn',t:'1'},
-    {n:'Malmö Hyllie',t:'2b'},{n:'Triangeln',t:'2'},
-    {n:'Malmö C',t:'2'},{n:'Lund C',t:'1'},{n:'Helsingborg C',t:'4a'}
-  ];
-  var stops=isHC?sHC:sCH;
-  var originIdx=isHC?6:3;
-  var currentIdx=isHC?4:2;
-  var depMins=parseMins(dep.time),dly=delayMins(dep.time,dep.rtTime);
-  var destIdx=isHC?stops.length-1:4;
-  return stops.map(function(s,i){
-    var offset=(i-originIdx)*4;
-    var pm=depMins+offset;
-    var ph=Math.floor(((pm%1440)+1440)%1440/60),pmin=((pm%1440)+1440)%1440%60;
-    var planned=pad(ph)+':'+pad(pmin)+':00';
-    var stopDly=i>=currentIdx?dly:0;
-    var am=pm+stopDly;
-    var ah=Math.floor(((am%1440)+1440)%1440/60),amin=((am%1440)+1440)%1440%60;
-    var actual=stopDly>0?pad(ah)+':'+pad(amin)+':00':null;
-    return{name:s.n,track:s.t,depTime:planned,rtDepTime:actual,
-      passed:i<currentIdx,current:i===currentIdx,
-      isOrigin:i===originIdx,isDest:i===destIdx};
-  });
-}
-
-/* ---- LOAD ---- */
-async function loadDepartures(){
-  document.getElementById('depList').innerHTML='<div class="spinner">Fetching departures...</div>';
-  var deps=[],isLive=false;
-  if(apiKey){
-    var url='https://www.rejseplanen.dk/api/departureBoard?accessId='+apiKey+'&format=json&id='+ORIGIN[dir]+'&duration=180&maxJourneys=50&useTog=1&useBus=0&useMetro=0';
-    try{
-      var resp=await fetch(url);
-      if(resp.ok){
-        var data=await resp.json();
-        var raw=data.Departure||(data.DepartureBoard&&data.DepartureBoard.Departure)||[];
-        if(!Array.isArray(raw))raw=[raw];
-        deps=raw.filter(isOresund).slice(0,10);isLive=true;
-      }
-    }catch(e){}
-  }
-  if(!isLive)deps=buildDemo();
-  var dot=document.getElementById('liveDot'),lbl=document.getElementById('liveLabel');
-  if(isLive){dot.className='live-dot on';lbl.textContent='Live';checkAndLogDelays(deps);}
-  else if(apiKey){dot.className='live-dot err';lbl.textContent='Error';}
-  else{dot.className='live-dot';lbl.textContent='Demo';}
-  document.getElementById('updTxt').textContent='Updated '+nowStr();
-  lastDeps=deps;journeyCache={};
-  checkAlerts(deps);renderDeps(deps);updateCatch();
-}
-
-/* ---- JOURNEY ---- */
-async function fetchJourney(dep,idx){
-  var panel=document.getElementById('jp-'+idx);if(!panel)return;
-  if(journeyCache[idx]){renderJourney(panel,journeyCache[idx],dep);return;}
-  panel.innerHTML='<div class="journey-loading">Loading live journey...</div>';
-  if(!apiKey||!dep.journeyDetailRef){
-    var d=buildDemoJourney(dep);journeyCache[idx]=d;renderJourney(panel,d,dep);return;
-  }
-  try{
-    var ref=dep.journeyDetailRef.ref||dep.journeyDetailRef;
-    var url='https://www.rejseplanen.dk/api/journeyDetail?accessId='+apiKey+'&format=json&ref='+encodeURIComponent(ref);
-    var resp=await fetch(url);if(!resp.ok)throw 0;
-    var data=await resp.json();
-    var jd=data.JourneyDetail||data;
-    var raw=jd.Stops&&jd.Stops.Stop||jd.Stop||[];
-    if(!Array.isArray(raw))raw=[raw];
-    var now=new Date(),nowM=now.getHours()*60+now.getMinutes(),foundCurrent=false;
-    var parsed=raw.map(function(s,i){
-      var dt=s.depTime||s.time||'',rt=s.rtDepTime||s.rtTime||null;
-      var at=s.arrTime||dt,rta=s.rtArrTime||rt;
-      var eff=rt||dt,em=parseMins(eff);
-      var passed=em!==null&&(nowM-em)>1;
-      var current=!foundCurrent&&!passed&&em!==null;
-      if(current)foundCurrent=true;
-      return{name:s.name||s.stopName||'',track:s.track||s.depTrack||'',
-        depTime:dt,rtDepTime:rt,arrTime:at,rtArrTime:rta,
-        passed:passed,current:current,isOrigin:i===0,isDest:i===raw.length-1};
-    });
-    journeyCache[idx]=parsed;renderJourney(panel,parsed,dep);
-  }catch(e){
-    var d=buildDemoJourney(dep);journeyCache[idx]=d;renderJourney(panel,d,dep);
-  }
-}
-
-function renderJourney(panel,stops,dep){
-  var h='<div class="journey-header"><span class="journey-title">Full route</span><span class="journey-name">→ '+dep.direction+'</span></div>';
-  h+='<div class="stop-list">';
-  for(var i=0;i<stops.length;i++){
-    var s=stops[i],isFirst=i===0,isLast=i===stops.length-1;
-    var t=s.depTime||s.arrTime,rt=s.rtDepTime||s.rtArrTime;
-    var dly=delayMins(t,rt),isDelayed=dly>0;
-    var dotCls=s.current?'stop-dot current':s.isOrigin?'stop-dot origin':s.isDest?'stop-dot dest':s.passed?'stop-dot passed':'stop-dot';
-    var nameCls=s.current?'stop-name cur':(s.isOrigin||s.isDest)?'stop-name bold':'stop-name';
-    var topLine=isFirst?'<div class="stop-spacer"></div>':'<div class="stop-line'+(s.passed||s.current?' passed':'')+'"></div>';
-    var botLine=isLast?'<div class="stop-spacer"></div>':'<div class="stop-line'+(s.passed?' passed':'')+'"></div>';
-    var tCls='s-planned'+((s.isOrigin||s.isDest)?' bold':'')+(isDelayed?' struck':'');
-    var tHtml='<div class="'+tCls+'">'+fmtTm(t)+'</div>';
-    if(isDelayed)tHtml+='<div class="s-actual">'+fmtTm(rt)+'</div>';
-    if(s.current)tHtml+='<div class="s-cur">Here now</div>';
-    var pHtml=s.track?'<div class="stop-platform">Spår '+s.track+'</div>':'';
-    h+='<div class="stop-row">'+
-      '<div class="stop-line-col">'+topLine+'<div class="stop-dot-wrap"><div class="'+dotCls+'"></div></div>'+botLine+'</div>'+
-      '<div class="stop-content"><div><div class="'+nameCls+'">'+s.name+'</div>'+pHtml+'</div>'+
-      '<div class="stop-times">'+tHtml+'</div></div>'+
-    '</div>';
-  }
-  h+='</div>';panel.innerHTML=h;
-}
-
-/* ---- EXPAND ---- */
-function toggleExpand(idx){
-  var was=expandedIdx===idx;
-  document.querySelectorAll('.dep-wrap').forEach(function(w){w.classList.remove('expanded');});
-  if(was){expandedIdx=null;return;}
-  var wrap=document.getElementById('dw-'+idx);if(!wrap)return;
-  wrap.classList.add('expanded');expandedIdx=idx;
-  fetchJourney(lastDeps[idx],idx);
-}
-
-/* ---- ALERTS ---- */
-function checkAlerts(deps){
-  var banner=document.getElementById('alertBanner'),txt=document.getElementById('alertText');
-  var c=deps.filter(function(d){return d.cancelled;});
-  var bd=deps.filter(function(d){return delayMins(d.time,d.rtTime)>=10;});
-  if(c.length){banner.className='alert-banner cancelled show';txt.textContent=fmtTm(c[0].time)+' to '+c[0].direction+' is cancelled.';}
-  else if(bd.length){var d=bd[0];banner.className='alert-banner warning show';txt.textContent=fmtTm(d.time)+' is '+delayMins(d.time,d.rtTime)+' min late — now '+fmtTm(d.rtTime)+'.';}
-  else{banner.className='alert-banner';}
-}
-
-/* ---- RENDER DEPS ---- */
-function renderDeps(deps){
-  var walk=parseInt(document.getElementById('walkSlider').value);
-  if(!deps||!deps.length){document.getElementById('depList').innerHTML='<div class="empty">No departures found.</div>';return;}
-  var html='';
-  for(var i=0;i<deps.length;i++){
-    var d=deps[i];
-    var planned=fmtTm(d.time),actual=d.rtTime?fmtTm(d.rtTime):null;
-    var delay=delayMins(d.time,d.rtTime);
-    var isCan=!!d.cancelled,isDel=delay>0&&!isCan,isNext=i===0&&!isCan;
-    var ma=minsUntil(d.rtTime||d.time);
-    var isCatch=!isCan&&ma>=walk&&ma<=walk+5;
-    var isExp=expandedIdx===i;
-    var wc='dep-wrap';
-    if(isNext)wc+=' is-next';else if(isCan)wc+=' is-cancelled';else if(isDel)wc+=' is-delayed';
-    if(isCatch)wc+=' catchable';if(isExp)wc+=' expanded';
-    var tags='';
-    if(isCan)tags+='<span class="tag tag-cancel">Cancelled</span>';
-    else if(isNext)tags+='<span class="tag tag-next">Next</span>';
-    if(isCatch)tags+='<span class="tag tag-catch">Can catch</span>';
-    if(isDel)tags+='<span class="tag tag-delay">+'+delay+' min</span>';
-    var tHtml='';
-    if(isCan)tHtml='<div class="dep-planned struck">'+planned+'</div><div class="dep-actual">Cancelled</div>';
-    else if(isDel)tHtml='<div class="dep-planned struck">'+planned+'</div><div class="dep-actual">'+actual+'</div>';
-    else tHtml='<div class="dep-planned">'+planned+'</div><div class="dep-ontime">On time</div>';
-    var cl='',cc='dep-countdown';
-    if(!isCan){
-      if(ma<=0){cl='Boarding now';cc='dep-countdown boarding';}
-      else if(ma<=2){cl='Departs in '+ma+' min';cc='dep-countdown soon';}
-      else{cl='in '+ma+' min';}
-    }
-    var trk=d.track?'<div class="dep-track">Track '+d.track+'</div>':'';
-    var bc='line-badge'+(isCan?' red':'');
-    html+='<div class="'+wc+'" id="dw-'+i+'">'+
-      '<div class="dep-card" onclick="toggleExpand('+i+')">'+
-        '<div class="'+bc+'">Ø</div>'+
-        '<div class="dep-mid"><div class="dep-name">Øresundståg '+tags+'</div><div class="dep-dir">→ '+d.direction+'</div></div>'+
-        '<div class="dep-right">'+tHtml+'<div class="'+cc+'">'+cl+'</div>'+trk+'</div>'+
-        '<div class="dep-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="#C0C4CD" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>'+
-      '</div>'+
-      '<div class="journey-panel" id="jp-'+i+'"></div>'+
-    '</div>';
-  }
-  document.getElementById('depList').innerHTML=html;
-  if(expandedIdx!==null){
-    var p=document.getElementById('jp-'+expandedIdx);
-    if(p){
-      if(journeyCache[expandedIdx])renderJourney(p,journeyCache[expandedIdx],lastDeps[expandedIdx]);
-      else fetchJourney(lastDeps[expandedIdx],expandedIdx);
-    }
-  }
-}
-
-/* ---- CATCH ---- */
-function updateCatch(){
-  var walk=parseInt(document.getElementById('walkSlider').value);
-  document.getElementById('walkVal').textContent=walk;
-  if(!lastDeps.length)return;
-  var catchable=lastDeps.filter(function(d){
-    if(d.cancelled)return false;
-    var m=minsUntil(d.rtTime||d.time);return m>=walk&&m<=walk+5;
-  });
-  var next=lastDeps.filter(function(d){
-    if(d.cancelled)return false;return minsUntil(d.rtTime||d.time)>walk+5;
-  });
-  var res=document.getElementById('catchResult');
-  if(catchable.length){
-    var tr=catchable[0],m=minsUntil(tr.rtTime||tr.time);
-    res.className='catch-result green';
-    res.textContent='Yes — the '+fmtTm(tr.rtTime||tr.time)+' train leaves in '+m+' min. Leave now and you\'ll make it.';
-  } else if(next.length){
-    var nx=next[0],nm=minsUntil(nx.rtTime||nx.time),wait=Math.round(nm-walk);
-    res.className=wait>=0?'catch-result green':'catch-result amber';
-    res.textContent=wait>=0?'Your train is '+fmtTm(nx.rtTime||nx.time)+' — '+wait+' min to spare after you arrive.':
-      'Tight — the '+fmtTm(nx.rtTime||nx.time)+' leaves '+Math.abs(wait)+' min before you arrive.';
-  } else {
-    res.className='catch-result red';res.textContent='No catchable trains in the next 2 hours.';
-  }
-  renderDeps(lastDeps);
-}
-
-/* ---- DAY SCAN ---- */
-var scanStatus={running:false,done:false,found:0};
-
-function getScanKey(){
-  var d=new Date();
-  return 'scan_done_'+d.getFullYear()+'_'+(d.getMonth()+1)+'_'+d.getDate();
-}
-function markScanDone(found){
-  try{localStorage.setItem(getScanKey(),String(found));}catch(e){}
-}
-function getScanDone(){
-  try{var v=localStorage.getItem(getScanKey());return v!==null?parseInt(v):null;}catch(e){return null;}
-}
-function setScanBadge(txt,color){
-  var el=document.getElementById('scanBadge');
-  if(!el)return;
-  el.textContent=txt;
-  el.style.background=color||'rgba(255,255,255,.15)';
-  el.style.display=txt?'flex':'none';
-}
-
-async function fetchHourDeps(stationId,dateStr,timeStr){
-  if(!apiKey)return[];
-  var url='https://www.rejseplanen.dk/api/departureBoard?accessId='+apiKey
-    +'&format=json&id='+stationId+'&date='+dateStr+'&time='+timeStr
-    +'&duration=120&maxJourneys=50&useTog=1&useBus=0&useMetro=0';
-  try{
-    var resp=await fetch(url);
-    if(!resp.ok)return[];
-    var data=await resp.json();
-    var raw=data.Departure||(data.DepartureBoard&&data.DepartureBoard.Departure)||[];
-    if(!Array.isArray(raw))raw=[raw];
-    return raw.filter(isOresund);
-  }catch(e){return[];}
-}
-
-async function scanDay(){
-  if(!apiKey)return;
-  if(scanStatus.running)return;
-  var alreadyDone=getScanDone();
-  if(alreadyDone!==null){
-    if(alreadyDone>0){setScanBadge('Today: '+alreadyDone+' delay'+(alreadyDone>1?'s':'')+' recorded','rgba(211,43,46,.5)');}
-    else{setScanBadge('Today: no big delays ✓','rgba(29,158,117,.4)');}
-    return;
-  }
-  scanStatus.running=true;scanStatus.found=0;
-  setScanBadge('Scanning today’s trains…','rgba(255,255,255,.2)');
-  var now=new Date();
-  var dateStr=pad(now.getDate())+'.'+pad(now.getMonth()+1)+'.'+now.getFullYear();
-  var currentHour=now.getHours(),currentMin=now.getMinutes();
-  var stations=[{id:'8600626',dir:'hc'},{id:'8600645',dir:'ch'}];
-  for(var si=0;si<stations.length;si++){
-    var st=stations[si];
-    for(var h=5;h<=Math.min(currentHour,22);h+=2){
-      if(h>currentHour||(h===currentHour&&currentMin<10))break;
-      var timeStr=pad(h)+':00';
-      var deps=await fetchHourDeps(st.id,dateStr,timeStr);
-      var past=deps.filter(function(dep){
-        var dm=parseMins(dep.time);
-        if(dm===null)return false;
-        return dm<=(now.getHours()*60+now.getMinutes()-5);
-      });
-      past.forEach(function(dep){
-        var dly=delayMins(dep.time,dep.rtTime);
-        var isCan=!!dep.cancelled;
-        if(dly>=DELAY_THRESHOLD||isCan){
-          var key='scan_'+st.dir+'_'+dep.time+'_'+dateStr;
-          if(!seenDelays[key]){
-            seenDelays[key]=true;
-            var entries=loadLog();
-            var exists=entries.some(function(e){
-              return e.planned===fmtTm(dep.time)&&e.dir===st.dir&&fmtDate(e.ts)===fmtDate(now.getTime());
-            });
-            if(!exists){
-              entries.unshift({
-                ts:now.getTime(),dir:st.dir,
-                planned:fmtTm(dep.time),actual:isCan?'—':fmtTm(dep.rtTime),
-                delay:isCan?0:dly,towards:dep.direction,cancelled:isCan,scanned:true
-              });
-              entries=entries.filter(function(e){return e.ts>Date.now()-THIRTY_DAYS;});
-              saveLog(entries);
-              scanStatus.found++;
-            }
-          }
-        }
-      });
-      await new Promise(function(r){setTimeout(r,400);});
-    }
-  }
-  scanStatus.running=false;scanStatus.done=true;
-  markScanDone(scanStatus.found);
-  if(scanStatus.found>0){setScanBadge('Today: '+scanStatus.found+' delay'+(scanStatus.found>1?'s':'')+' recorded','rgba(211,43,46,.5)');}
-  else{setScanBadge('Today: no big delays ✓','rgba(29,158,117,.4)');}
-  var logPane=document.getElementById('pane-log');
-  if(logPane&&logPane.classList.contains('active'))renderLog();
-}
-
-loadStoredKey();
-loadDepartures();
-setInterval(loadDepartures,30000);
-setTimeout(scanDay,2000);
+  refresh();
+  timer = setInterval(refresh, POLL_MS);
+})();
 </script>
 </body>
 </html>
