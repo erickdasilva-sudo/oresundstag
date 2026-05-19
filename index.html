@@ -491,11 +491,12 @@
         }
       }
     }
-    // Mark the train as "at" its origin before it leaves, so users see where it is.
+    // NOTE: ResRobot/Rejseplanen does NOT expose live train GPS. Before the
+    // scheduled departure from origin we have no way to know if the train
+    // is actually on the platform yet (apps like MitTog get this from DSB's
+    // separate live-position feed). So we deliberately DO NOT mark the
+    // origin as "HERE" before departure — we only show "departs in N min".
     const firstT = parsed[0].t, lastT = parsed[parsed.length-1].t;
-    if (nowIdx < 0 && approachingIdx < 0 && firstT && now < firstT.getTime()) {
-      nowIdx = 0;
-    }
     const delayTxt = tripDelay > 0 ? ` · <span class="bad-inline">+${tripDelay} min late</span>`
                   : tripDelay < 0 ? ` · <span class="ok-inline">${tripDelay} min early</span>` : '';
     let statusHTML = '';
