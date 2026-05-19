@@ -7,191 +7,185 @@
 <meta name="description" content="Live Øresundståg departures between Copenhagen Airport and Hyllie. Logs all delays over 20 minutes." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#07090f;
-    --bg-2:#0c111c;
-    --panel:#101624;
-    --panel-2:#151c2e;
-    --border:rgba(255,255,255,.06);
-    --border-2:rgba(255,255,255,.12);
-    --text:#eef2ff;
-    --muted:#8a93ad;
-    --dim:#535d7a;
-    --brand:#5eead4;            /* refined teal accent */
-    --brand-2:#22d3ee;
-    --brand-soft:rgba(94,234,212,.12);
-    --accent:#fbbf24;
-    --green:#34d399;
-    --red:#fb7185;
-    --orange:#fb923c;
-    --r:16px;
+    --bg:#0a0e1a;
+    --bg-2:#0f1525;
+    --panel:#131a2e;
+    --panel-2:#1a2340;
+    --border:#222c4a;
+    --border-2:#2c3760;
+    --text:#e6ecff;
+    --muted:#8794b8;
+    --dim:#5a6485;
+    --brand:#00b4ff;
+    --brand-2:#0066ff;
+    --accent:#ffb800;
+    --green:#22d39a;
+    --red:#ff4d6d;
+    --orange:#ff8a3d;
+    --r:14px;
     --mono:'JetBrains Mono',ui-monospace,monospace;
-    --sans:'Inter',system-ui,sans-serif;
-    --display:'Space Grotesk','Inter',sans-serif;
-    --shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 12px 40px -12px rgba(0,0,0,.6);
+    --sans:'Space Grotesk',system-ui,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh;font-feature-settings:"cv11","ss01"}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh}
   body{
     background:
-      radial-gradient(900px 500px at 85% -15%,rgba(94,234,212,.08),transparent 60%),
-      radial-gradient(700px 400px at -10% 20%,rgba(34,211,238,.06),transparent 60%),
+      radial-gradient(1200px 600px at 80% -10%,rgba(0,180,255,.12),transparent 60%),
+      radial-gradient(900px 500px at -10% 30%,rgba(0,102,255,.10),transparent 60%),
       var(--bg);
   }
-  .wrap{max-width:1200px;margin:0 auto;padding:32px 24px 80px}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 22px 80px}
 
   /* HEADER */
-  header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:32px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:28px}
   .brand{display:flex;align-items:center;gap:14px}
-  .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#0f1a2b,#172238);border:1px solid var(--border-2);display:grid;place-items:center;position:relative;overflow:hidden}
-  .logo::after{content:"";position:absolute;inset:0;background:radial-gradient(60% 60% at 30% 20%,rgba(94,234,212,.35),transparent 70%)}
-  .logo svg{width:22px;height:22px;fill:var(--brand);position:relative;z-index:1}
-  .brand h1{font-family:var(--display);font-size:20px;font-weight:600;letter-spacing:-.02em}
-  .brand p{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:3px;letter-spacing:.02em}
-  .status{display:flex;align-items:center;gap:9px;padding:8px 14px;border:1px solid var(--border);border-radius:999px;background:var(--panel);font-size:12px;font-family:var(--mono);color:var(--muted)}
-  .dot{width:7px;height:7px;border-radius:50%;background:var(--dim)}
-  .dot.live{background:var(--green);box-shadow:0 0 0 4px rgba(52,211,153,.16);animation:p 1.8s infinite}
+  .logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,180,255,.35)}
+  .logo svg{width:24px;height:24px;fill:#fff}
+  .brand h1{font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .brand p{font-size:12px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+  .status{display:flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid var(--border);border-radius:999px;background:var(--panel);font-size:12px;font-family:var(--mono);color:var(--muted)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--dim)}
+  .dot.live{background:var(--green);box-shadow:0 0 0 4px rgba(34,211,154,.18);animation:p 1.6s infinite}
   .dot.err{background:var(--red)}
   @keyframes p{50%{opacity:.4}}
 
   /* DIRECTION TOGGLE */
-  .toggle{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:5px;gap:4px;margin-bottom:24px;max-width:720px;box-shadow:var(--shadow)}
-  .toggle button{flex:1;background:transparent;border:0;color:var(--muted);font-family:var(--sans);font-size:14px;font-weight:500;padding:13px 18px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:color .2s, background .2s}
-  .toggle button .from-to{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:-.01em}
-  .toggle button .arrow{color:var(--dim);font-weight:400}
-  .toggle button:hover{color:var(--text)}
-  .toggle button.active{background:var(--panel-2);color:var(--text);box-shadow:0 1px 0 rgba(255,255,255,.06) inset, 0 4px 14px -6px rgba(0,0,0,.6)}
-  .toggle button.active .arrow{color:var(--brand)}
+  .toggle{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:5px;gap:4px;margin-bottom:22px;max-width:680px}
+  .toggle button{flex:1;background:transparent;border:0;color:var(--muted);font-family:var(--sans);font-size:14px;font-weight:500;padding:14px 18px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s}
+  .toggle button .from-to{display:flex;align-items:center;gap:8px;font-weight:600}
+  .toggle button .arrow{color:var(--dim)}
+  .toggle button.active{background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff;box-shadow:0 6px 18px rgba(0,102,255,.35)}
+  .toggle button.active .arrow{color:rgba(255,255,255,.7)}
 
   /* GRID */
   .grid{display:grid;grid-template-columns:1fr 360px;gap:22px}
   @media(max-width:920px){.grid{grid-template-columns:1fr}}
 
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
-  .card-head{padding:16px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
-  .card-head h2{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+  .card-head{padding:18px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+  .card-head h2{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
   .card-head .meta{font-family:var(--mono);font-size:11px;color:var(--dim)}
 
   /* DEPARTURES */
   .dep-list{display:flex;flex-direction:column}
-  .dep{display:grid;grid-template-columns:96px 1fr auto;gap:18px;padding:18px 22px;border-bottom:1px solid var(--border);align-items:center;transition:background .15s;cursor:pointer}
+  .dep{display:grid;grid-template-columns:90px 1fr auto;gap:18px;padding:18px 20px;border-bottom:1px solid var(--border);align-items:center;transition:background .15s}
   .dep:last-child{border-bottom:0}
   .dep:hover{background:var(--panel-2)}
-  .dep-time{font-family:var(--display)}
-  .dep-time .sched{font-size:24px;font-weight:600;letter-spacing:-.03em}
-  .dep-time .sched.struck{text-decoration:line-through;color:var(--dim);font-size:15px;font-weight:500;letter-spacing:0}
-  .dep-time .real{font-size:24px;font-weight:600;letter-spacing:-.03em;color:var(--orange);display:block}
+  .dep-time{font-family:var(--mono)}
+  .dep-time .sched{font-size:22px;font-weight:600;letter-spacing:-.02em}
+  .dep-time .sched.struck{text-decoration:line-through;color:var(--dim);font-size:16px;font-weight:500}
+  .dep-time .real{font-size:22px;font-weight:600;letter-spacing:-.02em;color:var(--orange);display:block}
   .dep-time .real.cancel{color:var(--red);text-decoration:line-through}
-  .dep-info .line{display:flex;align-items:center;gap:10px;margin-bottom:5px;flex-wrap:wrap}
-  .dep-info .badge{font-family:var(--mono);font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--brand-soft);color:var(--brand);letter-spacing:.06em;text-transform:uppercase}
-  .dep-info .train-no{font-family:var(--mono);font-size:11px;color:var(--dim)}
-  .dep-info .dir{font-size:15px;font-weight:500;color:var(--text);letter-spacing:-.01em}
+  .dep-info .line{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .dep-info .badge{font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;background:rgba(0,180,255,.15);color:var(--brand);letter-spacing:.04em}
+  .dep-info .train-no{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .dep-info .dir{font-size:15px;font-weight:500;color:var(--text)}
   .dep-info .sub{font-size:12px;color:var(--muted);margin-top:3px;font-family:var(--mono)}
   .dep-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-  .delay{font-family:var(--mono);font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;letter-spacing:.02em}
-  .delay.ok{background:rgba(52,211,153,.1);color:var(--green)}
-  .delay.warn{background:rgba(251,146,60,.12);color:var(--orange)}
-  .delay.bad{background:rgba(251,113,133,.12);color:var(--red)}
-  .delay.cancel{background:rgba(251,113,133,.18);color:var(--red)}
+  .delay{font-family:var(--mono);font-size:13px;font-weight:600;padding:4px 10px;border-radius:6px}
+  .delay.ok{background:rgba(34,211,154,.12);color:var(--green)}
+  .delay.warn{background:rgba(255,138,61,.15);color:var(--orange)}
+  .delay.bad{background:rgba(255,77,109,.15);color:var(--red)}
+  .delay.cancel{background:rgba(255,77,109,.2);color:var(--red)}
   .track{font-family:var(--mono);font-size:11px;color:var(--dim)}
-  .track b{color:var(--muted);font-weight:600}
+  .track b{color:var(--text);font-weight:600}
 
-  .empty{padding:60px 20px;text-align:center;color:var(--muted);font-size:13px}
-  .empty svg{width:36px;height:36px;opacity:.35;margin-bottom:12px}
+  .empty{padding:60px 20px;text-align:center;color:var(--muted)}
+  .empty svg{width:42px;height:42px;opacity:.4;margin-bottom:12px}
 
   /* EXPAND / TIMELINE */
-  .dep .chev{display:inline-block;margin-left:6px;color:var(--dim);transition:transform .2s;font-family:var(--mono);font-size:10px}
+  .dep{cursor:pointer}
+  .dep .chev{display:inline-block;margin-left:6px;color:var(--dim);transition:transform .2s;font-family:var(--mono);font-size:11px}
   .dep.open .chev{transform:rotate(180deg);color:var(--brand)}
   .dep.open{background:var(--panel-2)}
-  .stops{display:none;padding:8px 22px 20px;border-bottom:1px solid var(--border);background:var(--bg-2)}
+  .stops{display:none;padding:6px 20px 18px 20px;border-bottom:1px solid var(--border);background:var(--bg-2)}
   .stops.open{display:block}
-  .stops .head{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:8px 0 14px}
+  .stops .head{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 12px}
   .timeline{position:relative;padding-left:28px}
   .timeline::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:var(--border-2);border-radius:2px}
-  .stop{position:relative;display:grid;grid-template-columns:62px 1fr auto;gap:12px;padding:9px 0;align-items:center}
-  .stop::before{content:"";position:absolute;left:-24px;top:50%;transform:translateY(-50%);width:11px;height:11px;border-radius:50%;background:var(--bg-2);border:2px solid var(--border-2);box-sizing:border-box}
+  .stop{position:relative;display:grid;grid-template-columns:62px 1fr auto;gap:12px;padding:8px 0;align-items:center}
+  .stop::before{content:"";position:absolute;left:-24px;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--border-2);box-sizing:border-box}
   .stop.past::before{background:var(--green);border-color:var(--green)}
-  .stop.now::before{background:var(--brand);border-color:var(--brand);box-shadow:0 0 0 5px rgba(94,234,212,.22);animation:blink 1.2s infinite}
-  .stop.now{background:var(--brand-soft);border-radius:8px;padding-left:8px;padding-right:8px;margin-left:-8px}
-  @keyframes blink{0%,100%{box-shadow:0 0 0 5px rgba(94,234,212,.32)}50%{box-shadow:0 0 0 10px rgba(94,234,212,0)}}
-  .stop .t{font-family:var(--mono);font-size:12px;color:var(--muted);line-height:1.4}
+  .stop.now::before{background:var(--brand);border-color:var(--brand);box-shadow:0 0 0 5px rgba(0,180,255,.25);animation:blink 1s infinite}
+  .stop.now{background:rgba(0,180,255,.08);border-radius:8px;padding-left:6px;padding-right:6px;margin-left:-6px}
+  @keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 5px rgba(0,180,255,.35)}50%{opacity:.55;box-shadow:0 0 0 10px rgba(0,180,255,0)}}
+  .stop .t{font-family:var(--mono);font-size:12px;color:var(--muted);line-height:1.35}
   .stop .t .rt{color:var(--orange);display:block}
   .stop .t .rt.ok{color:var(--green)}
-  .stop .nm{font-size:14px;font-weight:500;color:var(--text);letter-spacing:-.01em}
+  .stop .nm{font-size:14px;font-weight:500;color:var(--text)}
   .stop.now .nm{color:var(--brand);font-weight:600}
   .stop .tr{font-family:var(--mono);font-size:11px;color:var(--dim)}
   .stop .tr b{color:var(--muted);font-weight:600}
-  .now-pill{display:inline-block;margin-left:8px;font-family:var(--mono);font-size:9px;font-weight:700;color:#07090f;background:var(--brand);padding:2px 7px;border-radius:999px;letter-spacing:.08em;text-transform:uppercase;animation:blink 1.2s infinite}
-  .tl-status{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:12px}
+  .now-pill{display:inline-block;margin-left:8px;font-family:var(--mono);font-size:10px;font-weight:600;color:#fff;background:var(--brand);padding:2px 7px;border-radius:999px;letter-spacing:.05em;animation:blink 1s infinite}
+  .tl-status{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:10px}
   .tl-status .pending{color:var(--accent)}
   .tl-status .done{color:var(--green)}
+  .tl-status .bad-inline{color:var(--red);font-weight:600}
+  .tl-status .ok-inline{color:var(--green);font-weight:600}
 
   /* SIDEBAR */
   .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:18px 20px}
-  .stat{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:16px;transition:border-color .2s}
-  .stat:hover{border-color:var(--border-2)}
-  .stat .v{font-family:var(--display);font-size:26px;font-weight:600;letter-spacing:-.03em;line-height:1}
+  .stat{background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:14px}
+  .stat .v{font-family:var(--mono);font-size:24px;font-weight:600;letter-spacing:-.02em}
   .stat .v.red{color:var(--red)}
   .stat .v.orange{color:var(--orange)}
-  .stat .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:8px;font-weight:500}
+  .stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
 
   .log{max-height:520px;overflow-y:auto}
-  .log::-webkit-scrollbar{width:6px}
+  .log::-webkit-scrollbar{width:8px}
   .log::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px}
-  .log::-webkit-scrollbar-track{background:transparent}
   .log-item{padding:14px 20px;border-bottom:1px solid var(--border);font-size:13px}
   .log-item:last-child{border-bottom:0}
-  .log-item .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-  .log-item .when{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.02em}
-  .log-item .d{font-family:var(--mono);font-weight:600;font-size:12px}
+  .log-item .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .log-item .when{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .log-item .d{font-family:var(--mono);font-weight:600}
   .log-item .d.red{color:var(--red)}
   .log-item .d.orange{color:var(--orange)}
   .log-item .route{font-size:13px;color:var(--text)}
-  .log-item .reason{font-size:11px;color:var(--dim);margin-top:4px;font-style:italic}
+  .log-item .reason{font-size:11px;color:var(--dim);margin-top:3px;font-style:italic}
 
   .actions{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--border)}
-  .btn{flex:1;background:transparent;border:1px solid var(--border-2);color:var(--muted);padding:10px;border-radius:8px;font-family:var(--mono);font-size:10.5px;font-weight:600;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;transition:all .15s}
-  .btn:hover{background:var(--panel-2);color:var(--text);border-color:var(--brand)}
-  .btn.danger:hover{background:rgba(251,113,133,.08);border-color:var(--red);color:var(--red)}
+  .btn{flex:1;background:var(--bg-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:500;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .15s}
+  .btn:hover{background:var(--panel-2);border-color:var(--border-2)}
+  .btn.danger:hover{background:rgba(255,77,109,.1);border-color:var(--red);color:var(--red)}
 
-  .footer{margin-top:36px;text-align:center;font-size:11px;color:var(--dim);font-family:var(--mono);line-height:1.7;letter-spacing:.02em}
-  .footer a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--border-2)}
-  .footer a:hover{color:var(--brand);border-color:var(--brand)}
-  .note{background:linear-gradient(180deg,rgba(251,191,36,.06),rgba(251,191,36,.03));border:1px solid rgba(251,191,36,.18);color:#fcd577;padding:12px 16px;border-radius:12px;font-size:12.5px;margin-bottom:20px;line-height:1.55;display:flex;gap:10px;align-items:flex-start}
-  .note b{color:var(--accent);font-weight:600}
-  .note::before{content:"i";flex-shrink:0;width:18px;height:18px;border-radius:50%;background:rgba(251,191,36,.18);color:var(--accent);font-family:var(--display);font-style:italic;font-weight:600;display:grid;place-items:center;font-size:12px;margin-top:1px}
+  .footer{margin-top:32px;text-align:center;font-size:11px;color:var(--dim);font-family:var(--mono);line-height:1.7}
+  .footer a{color:var(--muted)}
+  .note{background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.25);color:#ffd370;padding:12px 16px;border-radius:10px;font-size:12px;margin-bottom:18px;line-height:1.5}
+  .note b{color:var(--accent)}
 
   /* MOBILE */
   @media(max-width:600px){
-    .wrap{padding:20px 14px 60px}
-    header{margin-bottom:22px}
-    .brand{gap:11px}
+    .wrap{padding:18px 14px 60px}
+    header{margin-bottom:20px}
+    .brand{gap:10px}
     .logo{width:38px;height:38px;border-radius:10px}
-    .logo svg{width:18px;height:18px}
-    .brand h1{font-size:17px}
-    .brand p{font-size:10.5px}
-    .status{padding:7px 11px;font-size:11px}
+    .logo svg{width:20px;height:20px}
+    .brand h1{font-size:16px}
+    .brand p{font-size:11px}
+    .status{padding:6px 10px;font-size:11px}
     .toggle{flex-direction:column;border-radius:12px;padding:4px;gap:4px}
-    .toggle button{padding:12px 14px;font-size:13px;border-radius:9px}
-    .note{font-size:12px;padding:11px 13px}
+    .toggle button{padding:12px 14px;font-size:13px;border-radius:8px}
+    .note{font-size:11.5px;padding:10px 12px}
     .card-head{padding:14px 16px}
-    .card-head h2{font-size:10.5px}
-    .dep{grid-template-columns:78px 1fr auto;gap:12px;padding:14px 16px}
-    .dep-time .sched{font-size:19px}
-    .dep-time .sched.struck{font-size:12.5px}
-    .dep-time .real{font-size:19px}
+    .card-head h2{font-size:12px}
+    .dep{grid-template-columns:72px 1fr auto;gap:12px;padding:14px 16px}
+    .dep-time .sched{font-size:18px}
+    .dep-time .sched.struck{font-size:13px}
+    .dep-time .real{font-size:18px}
     .dep-info .dir{font-size:14px}
     .dep-info .sub{font-size:11px}
-    .delay{font-size:11.5px;padding:3px 8px}
+    .delay{font-size:12px;padding:3px 8px}
     .stats{grid-template-columns:1fr 1fr;gap:8px;padding:14px 16px}
-    .stat{padding:13px}
-    .stat .v{font-size:21px}
+    .stat{padding:12px}
+    .stat .v{font-size:20px}
     .log-item{padding:12px 16px}
     .actions{padding:12px 16px;flex-wrap:wrap}
-    .btn{font-size:10px;padding:10px 6px;flex:1 1 30%}
-    .footer{font-size:10.5px;margin-top:26px}
+    .btn{font-size:10.5px;padding:9px 6px;flex:1 1 30%}
+    .footer{font-size:10.5px;margin-top:24px}
   }
 </style>
 </head>
@@ -365,9 +359,24 @@
 
   const renderDepartures = (trips) => {
     const el = document.getElementById('departures');
+    // Default: every train's timeline is CLOSED. Track which the user explicitly opened.
     if (!window._openTrains) window._openTrains = new Set();
     const openTrains = window._openTrains;
-    if (!trips || !trips.length) {
+    // Trains only — drop buses and anything that isn't a rail journey.
+    const isTrain = (leg) => {
+      const cat = (leg.category || leg.catOut || leg.catOutL || '').toLowerCase();
+      const name = (leg.name || '').toLowerCase();
+      if (/buss|bus|expressbus/.test(cat) || /buss|expressbus/.test(name)) return false;
+      // Accept regional / tåg / train / IC / ICE / SJ / Øresund
+      if (/tåg|train|regional|ic|ice|sj|öresund|øresund|pågat/.test(cat + ' ' + name)) return true;
+      // Fallback: keep JNY types that aren't explicitly bus
+      return true;
+    };
+    trips = (trips || []).filter(t => {
+      const leg = (t.LegList?.Leg || []).find(l => l.type === 'JNY');
+      return leg && isTrain(leg);
+    });
+    if (!trips.length) {
       el.innerHTML = '<div class="empty">No upcoming trains found.</div>';
       return;
     }
@@ -380,6 +389,7 @@
       if (!legs.length) return '';
       const leg = legs[0];
       const tripKey = (leg.name||'').trim() + '|' + (leg.Origin?.time||'');
+      if (!isTrain(leg)) return '';
       const O = leg.Origin, D = leg.Destination;
       const schedDT = parseDT(O.date, O.time);
       const realDT  = parseDT(O.rtDate||O.date, O.rtTime||O.time);
@@ -409,8 +419,8 @@
       const trackHTML = sTrack ? `<div class="track">Track <b>${rTrack||sTrack}</b></div>` : '';
 
       const fullStops = stopIndex.get((leg.name||'').trim());
-      const stopsHTML = renderStops(leg, fullStops);
-      const isOpen = openTrains.has(tripKey);
+      const stopsHTML = renderStops(leg, fullStops, delay);
+      const isOpen = openTrains.has(tripKey); // closed by default
       return `
         <div class="dep${isOpen?' open':''}" data-idx="${idx}" data-key="${tripKey}">
           <div class="dep-time">
@@ -445,7 +455,7 @@
     });
   };
 
-  const renderStops = (leg, fullStops) => {
+  const renderStops = (leg, fullStops, tripDelay) => {
     const stops = (fullStops && fullStops.length >= 2) ? fullStops : (leg.Stops?.Stop || []);
     if (!stops.length) return '<div class="head">No stop list available.</div>';
     const now = Date.now();
@@ -456,28 +466,62 @@
       return { s, arr, dep, t: dep||arr };
     });
     let nowIdx = -1;
-    // train is "at" stop i if now >= arr[i] and now < dep[i+1] (or hasn't reached next)
+    let approachingIdx = -1; // train is in transit, heading toward this stop
+    // Train is "at" stop i ONLY while dwelling: now >= arr[i] AND now < dep[i].
+    // Once now >= dep[i] and now < arr[i+1], the train is in transit (approaching i+1).
     for (let i=0;i<parsed.length;i++){
       const cur = parsed[i];
       const next = parsed[i+1];
-      const arrived = cur.arr ? now >= cur.arr.getTime() : (cur.dep ? now >= cur.dep.getTime() : false);
-      const leftForNext = next && next.arr ? now >= next.arr.getTime() : false;
-      if (arrived && !leftForNext) { nowIdx = i; break; }
+      const arrT = cur.arr ? cur.arr.getTime() : (cur.dep ? cur.dep.getTime() : null);
+      const depT = cur.dep ? cur.dep.getTime() : (cur.arr ? cur.arr.getTime() : null);
+      // Dwelling at this stop
+      if (arrT != null && now >= arrT && depT != null && now < depT) {
+        nowIdx = i; break;
+      }
+      // Endpoint: arrived at last stop (no dep)
+      if (!next && arrT != null && now >= arrT) {
+        nowIdx = i; break;
+      }
+      // In transit from this stop to the next
+      if (depT != null && now >= depT && next) {
+        const nextArrT = next.arr ? next.arr.getTime() : (next.dep ? next.dep.getTime() : null);
+        if (nextArrT != null && now < nextArrT) {
+          approachingIdx = i+1;
+          break;
+        }
+      }
     }
-    let statusHTML = '';
+    // Mark the train as "at" its origin before it leaves, so users see where it is.
     const firstT = parsed[0].t, lastT = parsed[parsed.length-1].t;
+    if (nowIdx < 0 && approachingIdx < 0 && firstT && now < firstT.getTime()) {
+      nowIdx = 0;
+    }
+    const delayTxt = tripDelay > 0 ? ` · <span class="bad-inline">+${tripDelay} min late</span>`
+                  : tripDelay < 0 ? ` · <span class="ok-inline">${tripDelay} min early</span>` : '';
+    let statusHTML = '';
     if (firstT && now < firstT.getTime()) {
       const mins = Math.round((firstT.getTime()-now)/60000);
-      statusHTML = `<div class="tl-status"><span class="pending">● Not yet departed</span> · leaves in ${mins} min</div>`;
+      const originName = parsed[0].s.name;
+      statusHTML = `<div class="tl-status"><span class="pending">● Waiting at ${escapeHtml(originName)}</span> · leaves in ${mins} min${delayTxt}</div>`;
     } else if (lastT && now > lastT.getTime()) {
       statusHTML = `<div class="tl-status"><span class="done">● Journey completed</span></div>`;
+    } else if (approachingIdx >= 0) {
+      const fromName = parsed[approachingIdx-1].s.name;
+      const toName = parsed[approachingIdx].s.name;
+      const etaT = parsed[approachingIdx].arr || parsed[approachingIdx].dep;
+      const etaMin = etaT ? Math.max(0, Math.round((etaT.getTime()-now)/60000)) : null;
+      statusHTML = `<div class="tl-status"><span class="pending">● En route</span> ${escapeHtml(fromName)} → <b style="color:var(--brand)">${escapeHtml(toName)}</b>${etaMin!=null?` · arrives in ${etaMin} min`:''}${delayTxt}</div>`;
     } else if (nowIdx >= 0) {
-      statusHTML = `<div class="tl-status">Train currently at <b style="color:var(--brand)">${parsed[nowIdx].s.name}</b></div>`;
+      statusHTML = `<div class="tl-status">Train currently at <b style="color:var(--brand)">${escapeHtml(parsed[nowIdx].s.name)}</b>${delayTxt}</div>`;
     }
 
     const rows = parsed.map((p, i) => {
       const s = p.s;
-      const cls = i === nowIdx ? 'now' : (nowIdx >= 0 && i < nowIdx) || (nowIdx < 0 && p.t && now > p.t.getTime()) ? 'past' : '';
+      const pastRef = nowIdx >= 0 ? nowIdx : (approachingIdx >= 0 ? approachingIdx : -1);
+      const cls = i === nowIdx ? 'now'
+                : i === approachingIdx ? 'next'
+                : (pastRef >= 0 && i < pastRef) || (pastRef < 0 && p.t && now > p.t.getTime()) ? 'past'
+                : '';
       const schedArr = s.arrTime, schedDep = s.depTime;
       const rtArr = s.rtArrTime, rtDep = s.rtDepTime;
       const showSched = schedArr || schedDep;
@@ -494,7 +538,7 @@
           <div>${fmtTime(showSched)}</div>
           ${showRt && showRt !== showSched ? `<div class="rt ${rtCls}">${fmtTime(showRt)}</div>`:''}
         </div>
-        <div class="nm">${escapeHtml(s.name)}${i===nowIdx?'<span class="now-pill">HERE</span>':''}</div>
+        <div class="nm">${escapeHtml(s.name)}${i===nowIdx?'<span class="now-pill">HERE</span>':''}${i===approachingIdx?'<span class="now-pill" style="background:transparent;border:1px solid var(--brand);color:var(--brand)">APPROACHING</span>':''}</div>
         <div class="tr">${track?`Sp. <b>${track}</b>`:''}</div>
       </div>`;
     }).join('');
